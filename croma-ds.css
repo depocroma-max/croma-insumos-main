@@ -1,0 +1,246 @@
+/* ============================================================
+   CROMA · DESIGN SYSTEM (base) — Fase 2
+   Fuente única de tokens + componentes reutilizables.
+   Cargar SIEMPRE antes que style.css o cualquier <style> inline,
+   así las pantallas actuales pueden pisar sin regresiones.
+   No usa CDN ni dependencias externas (PWA/offline-friendly).
+   ============================================================ */
+
+:root {
+  /* ── Marca ── */
+  --croma-black: #0d0d0d;
+  --croma-red:   #e8251a;
+  --croma-white: #ffffff;
+
+  /* Alias legacy (compatibilidad con el CSS existente) */
+  --black:  #0d0d0d;
+  --white:  #ffffff;
+  --accent: #e8251a;
+
+  /* ── Fondo y grises ── */
+  --bg:       #f7f7f5;
+  --gray-50:  #f7f7f5;
+  --gray-100: #efefec;
+  --gray-200: #ddddd8;
+  --gray-300: #cfcfc8;
+  --gray-400: #a0a09a;
+  --gray-500: #8a8a84;
+  --gray-600: #666660;
+  --gray-800: #333330;
+
+  /* ── Estados ── */
+  --success:    #16a34a;  --success-bg: #dcfce7;
+  --warning:    #d97706;  --warning-bg: #fef3c7;
+  --danger:     #dc2626;  --danger-bg:  #fee2e2;
+  --info:       #2563eb;  --info-bg:    #dbeafe;
+  --green:      #16a34a;  /* alias legacy usado por fichar/kiosco */
+
+  /* ── Colores por sucursal ── */
+  --suc-01: #185FA5;  --suc-01-light: #E6F1FB;
+  --suc-05: #0F6E56;  --suc-05-light: #E1F5EE;
+  --suc-09: #B45309;  --suc-09-light: #FEF3C7;
+  --suc-10: #9B2563;  --suc-10-light: #FCE7F3;
+  --suc-12: #534AB7;  --suc-12-light: #EEEDFE;
+  --suc-14: #3B6D11;  --suc-14-light: #EAF3DE;
+  --suc-depo:    #475569;  --suc-depo-light:    #E2E8F0;
+  --suc-oficina: #7C3AED;  --suc-oficina-light: #EDE9FE;
+
+  /* ── Tipografías ── */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* ── Radios ── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-pill: 999px;
+
+  /* ── Sombras ── */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.16);
+
+  /* ── Espaciados ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ── Transiciones ── */
+  --transition-fast: .12s ease;
+  --transition-base: .2s ease;
+}
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 18px;
+  border: none; border-radius: var(--radius-md);
+  font-family: var(--font-body); font-size: 15px; font-weight: 600; letter-spacing: .2px;
+  line-height: 1; text-decoration: none; white-space: nowrap;
+  cursor: pointer; user-select: none;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+              transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.btn:active   { transform: scale(.98); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(232,37,26,.35); }
+
+.btn-primary   { background: var(--croma-red); color: #fff; box-shadow: 0 4px 14px rgba(232,37,26,.28); }
+.btn-primary:hover:not(:disabled)   { background: #d01f15; }
+
+.btn-secondary { background: var(--croma-black); color: #fff; }
+.btn-secondary:hover:not(:disabled) { background: #222; }
+
+.btn-danger    { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled)    { background: #b91c1c; }
+
+.btn-success   { background: var(--success); color: #fff; }
+.btn-success:hover:not(:disabled)   { background: #15803d; }
+
+.btn-outline   { background: transparent; color: var(--croma-black); border: 1.5px solid var(--gray-200); }
+.btn-outline:hover:not(:disabled)   { border-color: var(--croma-black); }
+
+.btn-ghost     { background: transparent; color: var(--gray-600); }
+.btn-ghost:hover:not(:disabled)     { background: var(--gray-100); color: var(--croma-black); }
+
+.btn-icon {
+  min-height: 0; width: 40px; height: 40px; padding: 0;
+  border-radius: var(--radius-md); flex-shrink: 0;
+}
+.btn-block { width: 100%; }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+}
+.card-hover {
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+  cursor: pointer;
+}
+.card-hover:hover   { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.card-hover:active  { transform: scale(.99); }
+
+.action-card {
+  display: flex; flex-direction: column; align-items: flex-start;
+  background: var(--white); border: none; border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm); padding: var(--space-6);
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+.action-card:hover  { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+
+.employee-card {
+  background: var(--white); border: 1px solid var(--gray-100);
+  border-radius: var(--radius-xl); overflow: hidden; cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+.employee-card:hover  { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.employee-card:active { transform: scale(.98); }
+.employee-card .employee-photo {
+  width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;
+  background: var(--gray-100);
+}
+
+.location-card {
+  display: flex; align-items: center; gap: var(--space-3);
+  background: var(--white); border: none;
+  border-radius: 16px; padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-sm); cursor: pointer; text-align: left;
+  transition: box-shadow var(--transition-base), transform var(--transition-fast);
+}
+.location-card:hover  { box-shadow: var(--shadow-md); }
+.location-card:active { transform: scale(.99); }
+
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-4); }
+.form-label { font-size: 13px; font-weight: 500; color: var(--gray-600); }
+.form-hint  { font-size: 12px; color: var(--gray-400); }
+.form-error { font-size: 12px; color: var(--danger); }
+
+.form-control, .form-select, .form-textarea {
+  width: 100%; min-height: 46px; padding: 0 14px;
+  border: 1.5px solid var(--gray-200); border-radius: var(--radius-md);
+  font-family: var(--font-body); font-size: 15px; color: var(--croma-black);
+  background: var(--white); outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.form-textarea { min-height: 84px; padding: 12px 14px; resize: vertical; line-height: 1.5; }
+.form-control::placeholder, .form-textarea::placeholder { color: var(--gray-300); }
+.form-control:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--croma-red); box-shadow: 0 0 0 3px rgba(232,37,26,.12);
+}
+.form-select {
+  appearance: none; -webkit-appearance: none; padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e8251a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+
+/* Switch (toggle) */
+.form-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; display: inline-block; }
+.form-switch input { opacity: 0; width: 0; height: 0; }
+.form-switch .switch-track {
+  position: absolute; inset: 0; background: var(--gray-200);
+  border-radius: var(--radius-pill); cursor: pointer; transition: background var(--transition-base);
+}
+.form-switch .switch-track::before {
+  content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
+  background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform var(--transition-base);
+}
+.form-switch input:checked + .switch-track { background: var(--croma-black); }
+.form-switch input:checked + .switch-track::before { transform: translateX(20px); }
+.form-switch input:focus-visible + .switch-track { box-shadow: 0 0 0 3px rgba(232,37,26,.30); }
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; line-height: 1;
+  padding: 4px 10px; border-radius: var(--radius-pill); white-space: nowrap;
+}
+.badge svg { width: 12px; height: 12px; }
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-danger  { background: var(--danger-bg);  color: var(--danger); }
+.badge-info    { background: var(--info-bg);     color: var(--info); }
+.badge-neutral { background: var(--gray-100);    color: var(--gray-600); }
+
+/* ============================================================
+   ALERTS
+   ============================================================ */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-md);
+  font-size: 14px; line-height: 1.45; border-left: 3px solid transparent;
+}
+.alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-success { background: var(--success-bg); color: #14532d; border-left-color: var(--success); }
+.alert-warning { background: var(--warning-bg); color: #78350f; border-left-color: var(--warning); }
+.alert-danger  { background: var(--danger-bg);  color: #7f1d1d; border-left-color: var(--danger); }
+.alert-info    { background: var(--info-bg);     color: #1e3a8a; border-left-color: var(--info); }
+
+/* ============================================================
+   ICONOS (helper icon() en croma-icons.js)
+   Los SVG heredan color con currentColor; el tamaño se define
+   por contexto. Utilidad opcional de tamaño por defecto:
+   ============================================================ */
+.icon-16 { width: 16px; height: 16px; }
+.icon-20 { width: 20px; height: 20px; }
+.icon-24 { width: 24px; height: 24px; }

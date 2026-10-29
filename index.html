@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Croma · Insumos</title>
+  <link rel="icon" type="image/png" href="tridente_solo.png">
+  <link rel="apple-touch-icon" href="tridente_solo.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src https://stock-api.croma-app.com.ar;">
+  <meta name="referrer" content="no-referrer">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="croma-ds.css?v=20260714-1">
+  <style>
+    /* --black, --white, --gray-100..800 y --accent ya vienen de croma-ds.css (valores
+       idénticos, una sola fuente de verdad). Acá solo lo que croma-ds.css no define:
+       colores semánticos propios de Análisis (mismos valores que --success, --danger
+       y --warning de la DS, con otro nombre porque ya se usan así en todo el archivo)
+       y los colores de sucursal existentes (se mantienen tal cual, no los de
+       croma-ds.css, ver BRIEF/decisión 2026-07-13). */
+    :root {
+      --accent-s:#fde8e6;
+      --sold:#16a34a; --sold-s:#dcfce7;
+      --risk:#dc2626; --risk-s:#fee2e2;
+      --amber:#d97706; --amber-s:#fef3c7;
+      --violet:#7c3aed; --violet-s:#ede9fe;
+      --teal:#0891b2; --teal-s:#cffafe;
+      --suc-01:#185FA5; --suc-01-s:#E6F1FB;
+      --suc-05:#0F6E56; --suc-05-s:#E1F5EE;
+      --suc-09:#B45309; --suc-09-s:#FEF3C7;
+      --suc-10:#9B2563; --suc-10-s:#FCE7F3;
+      --suc-12:#534AB7; --suc-12-s:#EEEDFE;
+      --suc-14:#3B6D11; --suc-14-s:#EAF3DE;
+      --font-d: var(--font-display);
+      --font-b: var(--font-body);
+      --r: var(--radius-lg);
+      --sh:0 1px 3px rgba(0,0,0,.08),0 4px 16px -4px rgba(0,0,0,.08);
+    }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+      outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-text-size-adjust:100%}
+    body{font-family:var(--font-b);background:var(--gray-50);color:var(--black);
+      line-height:1.45;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+    #authCheck{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;
+      justify-content:center;flex-direction:column;gap:16px;z-index:9999}
+    #authCheck p{color:var(--gray-400);font-size:13px}
+    .spinner{width:28px;height:28px;border:2px solid rgba(255,255,255,.15);
+      border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:1.25rem;
+      padding:0 2.25rem;height:64px;
+      background:rgba(13,13,13,.96);backdrop-filter:blur(14px);
+      box-shadow:0 6px 24px rgba(0,0,0,.20)}
+    .brand{display:flex;align-items:center;gap:8px;min-width:max-content}
+    .brand-tridente{height:26px;width:auto;display:block}
+    .brand-logo{font-family:var(--font-d);font-size:26px;letter-spacing:3px;line-height:1;color:#fff}
+    .brand-divider{color:var(--gray-600);font-size:14px}
+    .brand-section{font-size:11px;font-weight:500;letter-spacing:3px;color:var(--gray-400);
+      text-transform:uppercase;padding:3px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px}
+    .top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+    /* Namespaced a proposito (topbar-icon-btn, no .btn-icon): .btn-icon ya es una clase
+       oficial de croma-ds.css (sizing 40x40 sobre fondo claro) — esta variante es solo
+       para la topbar oscura y no debe pisar la real al reutilizarla en Tiempo real. */
+    .topbar-icon-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,.12);border-radius:12px;
+      background:rgba(255,255,255,.04);color:var(--gray-400);cursor:pointer;transition:.15s}
+    .topbar-icon-btn:hover{color:#fff;border-color:#555;background:rgba(255,255,255,.11);transform:translateY(-1px)}
+    .sesion-chip{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 12px;
+      background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:20px}
+    .sesion-nombre{font-size:12px;font-weight:600;color:#e8e8e2;white-space:nowrap;letter-spacing:.2px}
+    .sesion-logout{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.15);color:#888;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;transition:.15s}
+    .sesion-logout:hover{background:#dc2626;border-color:#dc2626;color:#fff}
+
+    .wrap{max-width:1800px;margin:0 auto;padding:20px 20px 80px}
+
+    /* Filter bar */
+    .fbar{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r);
+      padding:12px 16px;box-shadow:var(--sh);margin-bottom:14px;
+      display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+    .fc{display:flex;flex-direction:column;gap:3px}
+    .fc label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray-400)}
+    .fc input,.fc select{font:inherit;font-size:13px;font-weight:500;
+      border:1px solid var(--gray-200);border-radius:8px;padding:6px 10px;
+      background:var(--gray-50);color:var(--black)}
+    .fc input:focus,.fc select:focus{outline:2px solid var(--violet);outline-offset:1px}
+    .fbar-end{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:2px}
+    .fname{font-size:11.5px;color:var(--gray-400)}
+    .fname b{color:var(--black);font-weight:600}
+
+    /* Tiempo real — periodo, tablas, paginacion, chips */
+    .rt-periodo-label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gray-400)}
+    .rt-periodo-input{padding:5px 8px!important;font-size:12.5px!important}
+    /* .rt-kpi se aplica siempre junto con .card (croma-ds.css) -- .card ya da fondo,
+       borde, radio y sombra reales del DS; acá solo el layout interno (icono+label+valor). */
+    .rt-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-3);margin-bottom:var(--space-4)}
+    .rt-kpi{display:flex;flex-direction:column;gap:6px;padding:var(--space-4)}
+    .rt-kpi-icon{width:32px;height:32px;border-radius:var(--radius-md);display:grid;place-items:center;
+      background:var(--gray-100);color:var(--gray-600);flex:none}
+    .rt-kpi-icon svg{width:16px;height:16px}
+    /* Color por tipo de metrica/estado (2026-07-20) -- antes todos los iconos de KPI eran
+       gris plano; estas clases opcionales los distinguen de un vistazo. */
+    .rt-kpi-icon-accent{background:var(--accent-s);color:var(--accent)}
+    .rt-kpi-icon-info{background:var(--info-bg);color:var(--info)}
+    .rt-kpi-icon-warning{background:var(--warning-bg);color:var(--warning)}
+    .rt-kpi-icon-danger{background:var(--danger-bg);color:var(--danger)}
+    .rt-kpi-icon-success{background:var(--success-bg);color:var(--success)}
+    .rt-kpi-icon-violet{background:var(--violet-s);color:var(--violet)}
+    .rt-kpi-icon-teal{background:var(--teal-s);color:var(--teal)}
+    .rt-kpi-icon-amber{background:var(--amber-s);color:var(--amber)}
+    .rt-kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400)}
+    .rt-kpi-valor{font-family:var(--font-display);font-size:26px;letter-spacing:-.01em;line-height:1}
+    .rt-kpi-delta{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;font-weight:600}
+    .rt-kpi-delta svg{width:11px;height:11px;flex:none}
+    .rt-kpi-delta.up{color:var(--success)}
+    .rt-kpi-delta.down{color:var(--danger)}
+    .rt-kpi-delta.flat{color:var(--gray-400);font-weight:500}
+    .rt-kpi-delta .arrow-up{transform:rotate(180deg)}
+    .rt-table-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--gray-100);
+      border-radius:16px;box-shadow:var(--shadow-sm)}
+    /* Espaciado entre secciones de cualquier vista (Dashboard, Marcas, Insumos, etc.) --
+       cada render*() agrega bloques hermanos directo a #rtPanelHost sin margen propio,
+       quedaban pegados unos con otros (reportado 2026-07-21). Una sola regla general en
+       vez de parchear cada panel individualmente. */
+    #rtPanelHost > * + *{margin-top:1.5rem}
+    /* Insumos (rediseño 2026-10-13) */
+    .rt-ins-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin:var(--space-2) 0 var(--space-1)}
+    .rt-ins-titulo{font-family:var(--font-display);font-size:30px;letter-spacing:.5px;line-height:1.1;margin:0}
+    .rt-ins-sub{margin:2px 0 0;font-size:13.5px;color:var(--gray-500);line-height:1.45}
+    .rt-ins-cab-der{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+    .rt-ins-hora{font-size:12px;color:var(--gray-400)}
+    .rt-ins-periodo{margin:0 0 var(--space-4);font-size:12px;color:var(--gray-400)}
+    .rt-ins-bloque{margin-bottom:var(--space-4);padding:var(--space-4) var(--space-5)}
+    .rt-ins-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3);margin-bottom:var(--space-4)}
+    .rt-ins-card{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4) var(--space-5)}
+    .rt-ins-card-icon{width:52px;height:52px;border-radius:50%;flex:none}
+    .rt-ins-card-icon svg{width:24px;height:24px}
+    .rt-ins-card-label{font-size:13px;color:var(--gray-600)}
+    .rt-ins-card-valor{font-size:30px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+    .rt-ins-card-detalle{font-size:12.5px;color:var(--gray-500);line-height:1.4}
+    .rt-ins-card>div:last-child{min-width:0}
+    .rt-ins-card{align-items:flex-start}
+    .rt-ins-desglose{list-style:none;margin:6px 0 8px;padding:0;display:flex;flex-direction:column;gap:3px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+    .rt-ins-calc-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+    .rt-ins-params{display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .rt-ins-param{display:flex;flex-direction:column;gap:4px;width:170px}
+    .rt-ins-param .form-control{font-variant-numeric:tabular-nums}
+    .rt-ins-invalido{border-color:var(--danger)!important}
+    .rt-ins-nota{border-top:none;padding:var(--space-2) 0 0}
+    .rt-ins-acciones{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .rt-ins-aviso{min-height:18px;margin:var(--space-2) 0 var(--space-3);font-size:12.5px;color:var(--gray-600)}
+    table.rt-ins-tabla td{vertical-align:middle;padding:12px}
+    .rt-ins-num,table.rt-table th.rt-ins-num,table.rt-table td.rt-ins-num{text-align:right;font-variant-numeric:tabular-nums}
+    table.rt-ins-tabla td.rt-ins-pedido{font-weight:700}
+    tr.rt-ins-urgente{background:var(--danger-bg)}
+    td.rt-ins-neg{color:var(--danger);font-weight:700}
+    .rt-ins-cob{white-space:nowrap}
+    .rt-ins-estado{display:block;margin-top:3px;font-size:11px;color:var(--gray-500)}
+    .rt-ins-accion{width:44px;text-align:right}
+    .rt-ins-btn-detalle{padding:6px 8px}
+    .rt-ins-alerta-texto{flex:1;min-width:0}
+    .alert.rt-ins-bloque{align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .rt-ins-como summary{cursor:pointer;font-weight:700;font-size:14px}
+    .rt-ins-como ul{margin:var(--space-3) 0 0;padding-left:1.2em}
+    .rt-ins-como li{margin-bottom:6px}
+    table.rt-ins-tabla-detalle th,table.rt-ins-tabla-detalle td{padding:8px 8px}
+    .rt-ins-modal-chico{max-width:380px}
+    .rt-ins-modal-grande{max-width:640px}
+    .rt-ins-dl{display:grid;grid-template-columns:minmax(150px,auto) 1fr;gap:6px 14px;margin:0 0 var(--space-4);font-size:13px}
+    .rt-ins-dl dt{color:var(--gray-500)}
+    .rt-ins-dl dd{margin:0;font-weight:600}
+    .rt-ins-cuerpo{width:100%;font-family:inherit;font-size:13px;line-height:1.5}
+    .rt-ins-overlay .alert{margin-bottom:var(--space-3)}
+    .rt-ins-propios-cab{margin-bottom:var(--space-3)}
+    .rt-ins-btn-editar{white-space:nowrap}
+    .rt-ins-accion-texto{width:80px;text-align:right}
+    .rt-ins-btn-eliminar{margin-right:auto;color:var(--danger);border-color:var(--danger)}
+    .rt-ins-btn-eliminar.rt-ins-confirmar{background:var(--danger);color:#fff}
+    .rt-ins-unidad{font-size:11px;color:var(--gray-500);margin-left:4px}
+    @media (max-width:900px){
+      .rt-ins-cards{grid-template-columns:1fr}
+      .rt-ins-param{width:calc(33% - 8px);min-width:130px}
+    }
+    .rt-ins-cod-nombre{display:none}
+    @media (max-width:700px){
+      .rt-ins-sec,.rt-ins-bolsa{display:none}
+      .rt-ins-cod-nombre{display:block;font-size:11px;color:var(--gray-500)}
+      table.rt-ins-tabla td,table.rt-ins-tabla th{padding:8px 6px}
+      table.rt-table.rt-ins-tabla td.rt-ins-cob,table.rt-table.rt-ins-tabla th{white-space:normal}
+      table.rt-table.rt-ins-tabla td.rt-ins-cob{max-width:112px}
+      .rt-ins-cob .badge{white-space:normal;text-align:center;line-height:1.25}
+      .rt-ins-accion{width:36px}
+      .rt-ins-bloque{padding:var(--space-3)}
+      .rt-ins-param{width:100%}
+      .rt-ins-acciones .btn{flex:1}
+      .rt-ins-dl{grid-template-columns:1fr}
+      .rt-ins-dl dd{margin-bottom:6px}
+    }
+    .rt-rot-card{padding:16px}
+    .rt-rot-cantidad{width:100%;max-width:60px;padding:4px 6px;box-sizing:border-box}
+    .rt-rot-cantidad-alerta{border-color:var(--warning,#c77700);background:color-mix(in srgb, var(--warning,#c77700) 12%, transparent)}
+    /* table-layout:fixed + columnas con ancho fijo (todas menos Producto, que se lleva
+       el resto del espacio) -- evita el scroll horizontal del .rt-table-wrap en desktop.
+       Con 12 columnas la tabla no entra en una pantalla angosta angostando columnas
+       nada mas (quedan ilegibles) -- por eso, igual que Oportunidades desde 2026-07-20,
+       debajo de 700px se muestran tarjetas apiladas (.rt-rot-cards-mobile) en vez de la
+       tabla (.rt-rot-tabla-desktop), nunca las dos a la vez (pedido explicito 2026-07-22).
+    */
+    .rt-rot-cards-mobile{display:none}
+    @media (max-width:700px){
+      .rt-rot-tabla-desktop{display:none}
+      .rt-rot-cards-mobile{display:flex;flex-direction:column;gap:10px}
+    }
+    .rt-rot-item-card{border:1px solid var(--gray-100);border-radius:10px;padding:12px;
+      display:flex;flex-direction:column;gap:8px}
+    .rt-rot-item-cabecera{display:flex;align-items:flex-start;gap:8px}
+    .rt-rot-item-titulo{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+    .rt-rot-item-codigo{font-size:11px;font-weight:700;color:var(--gray-400)}
+    .rt-rot-item-producto{font-size:13px;font-weight:600;line-height:1.3}
+    .rt-rot-item-linea{font-size:12px;color:var(--gray-400);line-height:1.5}
+    .rt-rot-item-pie{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    /* Subpestañas Sugeridas/Enviadas/Historial (persistencia de envios, 2026-07-23) --
+       reutiliza .tabs/.tab (mismo look que la nav principal) pero mas angosto, no
+       necesita scroll horizontal propio como la nav de arriba. */
+    .rt-rot-subtabs{margin:0 0 14px}
+    .rt-rot-envio-card{padding:16px}
+    /* Modal de confirmacion de envio -- overlay fijo, fuera de #rtPanelHost a
+       proposito (se agrega a document.body) para sobrevivir cualquier re-render del
+       panel de atras mientras esta abierto. */
+    .rt-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+      display:flex;align-items:center;justify-content:center;padding:20px}
+    .rt-modal-box{max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:20px}
+    .rt-modal-box ul{margin:8px 0;padding-left:1.2em}
+    .rt-modal-acciones{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+    .rt-modal-confirmar{background:var(--black);color:#fff;border-color:var(--black)}
+    .rt-modal-confirmar:hover{opacity:.9}
+    table.rt-rot-tabla{table-layout:fixed;width:100%}
+    /* th y td se tratan distinto a proposito: los headers son mas largos que el dato
+       que encabezan ("Vtas 30d dest." vs. "3") -- si se les aplica el mismo
+       white-space:nowrap que a las celdas quedan truncados a 2-3 letras e ilegibles
+       (bug reportado 2026-07-22). Los headers envuelven en 2 lineas en vez de eso; las
+       celdas de datos (numericas/codigo/talle/color) siguen en una linea con elipsis,
+       salvo Producto que ya envolvia. Anchos de columna recalculados con margen real
+       para el contenido mas largo esperado (ej. "04235" en Codigo, "105" en Talle) --
+       antes estaban ajustados solo al header abreviado, no al dato mas largo.
+    */
+    table.rt-rot-tabla th{padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9.5px}
+    table.rt-rot-tabla td{padding:8px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    table.rt-rot-tabla th.rt-rot-col-check, table.rt-rot-tabla td.rt-rot-col-check{width:28px}
+    table.rt-rot-tabla th.rt-rot-col-codigo, table.rt-rot-tabla td.rt-rot-col-codigo{width:76px}
+    table.rt-rot-tabla th.rt-rot-col-talle, table.rt-rot-tabla td.rt-rot-col-talle{width:60px}
+    table.rt-rot-tabla th.rt-rot-col-color, table.rt-rot-tabla td.rt-rot-col-color{width:120px}
+    table.rt-rot-tabla th.rt-rot-col-vtas30d, table.rt-rot-tabla td.rt-rot-col-vtas30d{width:64px;text-align:right}
+    table.rt-rot-tabla th.rt-rot-col-stockdest, table.rt-rot-tabla td.rt-rot-col-stockdest{width:78px;text-align:right}
+    table.rt-rot-tabla th.rt-rot-col-stockorigen, table.rt-rot-tabla td.rt-rot-col-stockorigen{width:78px;text-align:right}
+    table.rt-rot-tabla th.rt-rot-col-reserva, table.rt-rot-tabla td.rt-rot-col-reserva{width:76px;text-align:right}
+    table.rt-rot-tabla th.rt-rot-col-cantidad, table.rt-rot-tabla td.rt-rot-col-cantidad{width:80px}
+    table.rt-rot-tabla th.rt-rot-col-confianza, table.rt-rot-tabla td.rt-rot-col-confianza{width:76px}
+    table.rt-rot-tabla th.rt-rot-col-accion, table.rt-rot-tabla td.rt-rot-col-accion{width:34px}
+    table.rt-rot-tabla td.rt-rot-col-producto{white-space:normal;line-height:1.3}
+    .rt-rot-accion-icono{background:none;border:none;cursor:pointer;color:var(--gray-400);
+      display:inline-flex;padding:4px;border-radius:6px}
+    .rt-rot-accion-icono:hover{color:var(--black);background:var(--gray-100)}
+    .rt-rot-accion-icono svg{width:15px;height:15px}
+    .rt-rot-textarea{width:100%;min-height:160px;font-family:monospace;font-size:12px;white-space:pre;padding:10px}
+    table.rt-table{width:100%;border-collapse:collapse;font-size:13px}
+    table.rt-table th{text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+      color:var(--gray-400);padding:9px 12px;border-bottom:1px solid var(--gray-100);white-space:nowrap}
+    table.rt-table td{padding:9px 12px;border-bottom:1px solid var(--gray-50);white-space:nowrap;vertical-align:top}
+    table.rt-table td.rt-td-wrap{white-space:normal;max-width:380px;line-height:1.5}
+    table.rt-table td.rt-td-truncate{max-width:220px;overflow:hidden;text-overflow:ellipsis}
+    table.rt-table tbody tr.rt-row-click{cursor:pointer}
+    table.rt-table tbody tr.rt-row-click:hover{background:var(--gray-50)}
+    .rt-filtro-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-s);color:var(--accent);
+      font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:99px;margin-bottom:12px}
+    .rt-filtro-chip-icon{display:inline-flex}
+    .rt-filtro-chip button{background:none;border:none;cursor:pointer;color:inherit;padding:0 2px;
+      display:inline-flex;align-items:center}
+    .rt-pagination{display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:10px 12px;font-size:12.5px;color:var(--gray-400)}
+    .rt-progress{font-size:12.5px;color:var(--gray-400);display:flex;align-items:center;gap:8px;margin:8px 0}
+    .rt-buscador-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .rt-buscador-row input,.rt-buscador-row select{font:inherit;font-size:13px;border:1px solid var(--gray-200);
+      border-radius:8px;padding:7px 11px;background:var(--gray-50)}
+    /* Titulos de seccion dentro de una vista RT (ej. "Ventas y stock por sucursal",
+       "Por talle") -- clase usada en varias vistas pero sin regla propia hasta ahora,
+       caia al h3/h4 por defecto del navegador. */
+    .rt-subtitulo{font-family:var(--font-display);font-size:16px;letter-spacing:.5px;
+      color:var(--black);margin:var(--space-5) 0 var(--space-2)}
+    .rt-subtitulo:first-child{margin-top:0}
+    .rt-filtros-titulo{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+      text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400);margin:var(--space-3) 0 6px}
+    .rt-filtros-titulo svg{width:14px;height:14px}
+
+    /* Oportunidades — tarjetas de resumen clickeables, tabla desktop / tarjetas mobile */
+    .rt-kpi-click{transition:box-shadow .15s,border-color .15s}
+    .rt-kpi-click:hover{box-shadow:var(--shadow-md,0 4px 16px rgba(0,0,0,.10))}
+    .rt-kpi-activo{border:2px solid var(--croma-red,var(--accent));box-shadow:0 0 0 2px rgba(232,37,26,.12)}
+    .rt-oportunidades-cards{display:none}
+    .rt-opp-card{margin-bottom:10px;display:flex;flex-direction:column;gap:6px}
+    .rt-opp-card-titulo{font-weight:700;font-size:14px}
+    .rt-opp-card-linea{font-size:13px;color:var(--gray-600)}
+    .rt-opp-card-motivo{font-size:12.5px;color:var(--gray-500);line-height:1.4}
+    .rt-badges-secundarios{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+    .rt-badge-discreto{opacity:.65;font-size:10.5px;padding:2px 7px}
+    /* Debajo de 700px se usan tarjetas (.rt-oportunidades-cards), nunca la tabla --
+       evita scroll horizontal en mobile (pedido explicito, 2026-07-20). */
+    @media (max-width:700px){
+      .rt-oportunidades-tabla{display:none}
+      .rt-oportunidades-cards{display:block}
+    }
+
+    /* Oportunidades v2: tabla compacta con fila expandible (2026-07-20). min-height en
+       vez de height fija -- una fila puede crecer si el navegador esta con zoom/fuente
+       grande, pero motivo/advertencias/etiquetas secundarias NUNCA la agrandan porque
+       viven solo en el detalle expandido, no en la fila. */
+    .rt-oport-wrap{max-height:72vh;overflow:auto}
+    table.rt-oport-tabla{table-layout:fixed;width:100%}
+    table.rt-oport-tabla thead th{position:sticky;top:0;background:var(--white);z-index:1}
+    table.rt-oport-tabla td{padding:11px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    table.rt-oport-tabla td.rt-oport-num{text-align:right;font-variant-numeric:tabular-nums}
+    /* Estado va en badge (pill), no en texto plano -- con table-layout:fixed repartiendo
+       columnas por igual quedaba mas angosta que el texto mas largo ("Reposición o
+       compra urgente", "Reponer desde depósito (90)") y el badge se cortaba a mitad de
+       palabra sin elipsis visible (bug reportado 2026-07-20). Ancho fijo generoso para
+       que el badge siempre entre completo. */
+    table.rt-oport-tabla th.rt-col-estado, table.rt-oport-tabla td.rt-col-estado{width:220px;overflow:visible}
+    table.rt-oport-tabla td.rt-col-estado .badge{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+    table.rt-oport-tabla tr.rt-oport-fila{min-height:64px;cursor:pointer}
+    table.rt-oport-tabla tr.rt-oport-fila:hover{background:var(--gray-50)}
+    table.rt-oport-tabla tr.rt-oport-fila:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+    table.rt-oport-tabla tr.rt-oport-fila-activa{background:var(--accent-s)}
+    table.rt-oport-tabla tr.rt-oport-fila-activa:hover{background:var(--accent-s)}
+    .rt-oport-producto{display:flex;flex-direction:column;gap:2px;white-space:normal}
+    .rt-oport-producto-nombre{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+      overflow:hidden;font-weight:500;line-height:1.3;font-size:13px}
+    .rt-oport-marca-inline{display:none;font-size:11px;color:var(--gray-400)}
+    .rt-oport-chica{font-size:10px;font-weight:600;color:var(--gray-400);margin-left:4px;white-space:nowrap}
+    .rt-oport-ventas-neg{color:var(--danger);font-weight:700}
+    .rt-oport-fallado{color:var(--amber,var(--warning));font-weight:600}
+    tr.rt-oport-detalle-fila > td{background:var(--gray-50);white-space:normal;padding:16px 20px;
+      border-top:1px dashed var(--gray-200)}
+    .rt-oport-detalle{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 24px}
+    .rt-oport-detalle-bloque{display:flex;flex-direction:column;gap:4px}
+    .rt-oport-detalle-etiqueta{font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--gray-400)}
+    .rt-oport-detalle-valor{font-size:13px;color:var(--black)}
+    .rt-oport-detalle-suc-lista{display:flex;flex-direction:column;gap:4px}
+    .rt-oport-detalle-suc-fila{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .rt-oport-detalle-acciones{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;
+      padding-top:8px;border-top:1px solid var(--gray-200)}
+    @media (max-width:1024px){
+      .rt-col-marca{display:none}
+      .rt-oport-marca-inline{display:block}
+      .rt-col-ultimo-ingreso{display:none}
+      .rt-col-secundaria{display:none}
+    }
+    .kl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray-400);margin-bottom:8px;line-height:1.3}
+    .kv{font-family:var(--font-d);font-size:28px;letter-spacing:-.01em;line-height:1}
+
+    /* Tabs */
+    .tabs{display:flex;gap:3px;background:var(--white);border:1px solid var(--gray-100);
+      border-radius:12px;padding:4px;margin:14px 0;overflow-x:auto;scrollbar-width:none;max-width:100%}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{font:inherit;font-size:13px;font-weight:600;color:var(--gray-400);background:none;
+      border:none;border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap;transition:.13s}
+    .tab:hover{color:var(--black)}
+    .tab.active{background:var(--black);color:#fff}
+
+    .btn-sm{font:inherit;font-size:12px;font-weight:600;color:var(--black);background:var(--gray-50);
+      border:1px solid var(--gray-200);border-radius:8px;padding:5px 12px;cursor:pointer;
+      display:inline-flex;align-items:center;gap:5px;transition:.15s}
+    .btn-sm:hover{border-color:var(--black)}
+    .btn-sm svg{width:13px;height:13px;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+    /* Table */
+    .scroll{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--gray-400);padding:10px 14px;background:var(--gray-50);
+      position:sticky;top:0;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:1px solid var(--gray-100)}
+    thead th.ns{cursor:default}
+    thead th .arr{opacity:.3;font-size:9px;margin-left:3px}
+    thead th.sorted .arr{opacity:1;color:var(--black)}
+    tbody td{padding:9px 14px;border-top:1px solid var(--gray-100);vertical-align:middle}
+    tbody tr:hover{background:#fafaf8}
+    .nr{text-align:right;font-weight:600;white-space:nowrap}
+    .pname{font-weight:500;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* Sucursal badges */
+    .sb{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap;display:inline-block}
+    .s01{color:var(--suc-01);background:var(--suc-01-s)}
+    .s05{color:var(--suc-05);background:var(--suc-05-s)}
+    .s09{color:var(--suc-09);background:var(--suc-09-s)}
+    .s10{color:var(--suc-10);background:var(--suc-10-s)}
+    .s12{color:var(--suc-12);background:var(--suc-12-s)}
+    .s14{color:var(--suc-14);background:var(--suc-14-s)}
+
+    /* Dashboard mini rows */
+    .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+
+    /* Tiempo real — badges de ubicación: sucursal comercial, centro 0000 (DEPO) y
+       depósito 90/93 son tres cosas distintas, nunca se mezclan visualmente */
+    .sb.s00{color:var(--gray-600);background:var(--gray-100)}
+    .sb.dep90{color:var(--amber);background:var(--amber-s)}
+    .sb.dep93{color:var(--risk);background:var(--risk-s)}
+
+    .rt-state{padding:40px 20px;text-align:center;color:var(--gray-400);font-size:13px}
+    .rt-state .spinner{border:2px solid var(--gray-200);border-top-color:var(--black);margin:0 auto 12px}
+    .rt-state .btn-sm{margin-top:12px}
+    .rt-state-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+      margin:0 auto 10px;background:var(--gray-100);color:var(--gray-400)}
+    .rt-state-icon svg{width:18px;height:18px}
+    .rt-state-icon.danger{background:var(--danger-bg);color:var(--danger)}
+    .rt-note{font-size:11.5px;color:var(--gray-400);padding:10px 16px;border-top:1px solid var(--gray-100);line-height:1.6}
+
+    /* Estado "pendiente" (dato del boceto que la API todavia no entrega, ver Fase 1) */
+    .rt-pendiente{border-style:dashed;border-color:var(--gray-200)}
+    .rt-pendiente-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+    .rt-pendiente-head .rt-state-icon{margin:0;width:28px;height:28px}
+    .rt-pendiente-head .rt-state-icon svg{width:14px;height:14px}
+    .rt-pendiente .rt-note{padding:0;border-top:none}
+
+    /* Insights del periodo */
+    .rt-insights-lista{display:flex;flex-direction:column;gap:var(--space-3)}
+    .rt-insight-fila{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5}
+    .rt-insight-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;
+      background:var(--gray-100);color:var(--gray-600)}
+    .rt-insight-icon svg{width:15px;height:15px}
+    .rt-insight-icon.up{background:var(--success-bg);color:var(--success)}
+    .rt-insight-icon.down{background:var(--danger-bg);color:var(--danger)}
+
+    /* ── Dashboard v2 (rediseño 2026-07-29, mockup aprobado) ──
+       Solo la vista Dashboard: .rt-kpis y rtTarjetaKPI quedan intactos porque los
+       comparten Marcas, Productos y Oportunidades. */
+    /* Barra de período: fechas agrupadas a la izquierda, estado con indicador,
+       Actualizar a la derecha (via .fbar-end existente). */
+    .rt-periodobar{align-items:center}
+    .rt-periodo-grupo{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .rt-status{display:flex;align-items:center;gap:7px}
+    .rt-status:has(#rtUltimaActualizacion:empty){display:none}
+    .rt-status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);
+      box-shadow:0 0 0 3px var(--success-bg);flex:none}
+    .rt-btn-actualizar{background:var(--croma-black);color:#fff;border-color:var(--croma-black);
+      padding:8px 15px;border-radius:10px}
+    .rt-btn-actualizar:hover{border-color:var(--croma-black);background:#222}
+
+    /* Fila 1 de KPIs: hero (Ventas) mas ancha + 6 tarjetas iguales */
+    .rt-dash-kpis{display:grid;grid-template-columns:minmax(240px,1.9fr) repeat(6,minmax(120px,1fr));gap:var(--space-3)}
+    .rt-kpi-hero{gap:8px;padding:var(--space-5)}
+    .rt-kpi-hero .rt-kpi-icon{width:38px;height:38px}
+    .rt-kpi-hero .rt-kpi-icon svg{width:19px;height:19px}
+    .rt-kpi-hero .rt-kpi-valor{font-size:46px}
+    .rt-kpi-hero-cta{margin-top:auto;align-self:flex-start}
+    .rt-kpi-desc{font-size:11.5px;color:var(--gray-400)}
+    @media(max-width:1280px){
+      .rt-dash-kpis{grid-template-columns:repeat(3,1fr)}
+      .rt-kpi-hero{grid-column:1/-1}
+    }
+    @media(max-width:640px){.rt-dash-kpis{grid-template-columns:repeat(2,1fr)}}
+
+    /* Fila 2: proporciones con barra sobre el total de variantes con actividad */
+    .rt-dash-props{display:grid;grid-template-columns:repeat(2,minmax(230px,1fr));gap:var(--space-3);max-width:820px}
+    @media(max-width:640px){.rt-dash-props{grid-template-columns:1fr}}
+    .rt-prop{flex-direction:row;align-items:center;gap:14px}
+    .rt-prop-icon{width:38px;height:38px;border-radius:50%}
+    .rt-prop-info{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
+    .rt-prop-info .rt-kpi-valor{font-size:24px}
+    .rt-prop-medida{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray-400);white-space:nowrap}
+    .rt-prop-bar{flex:1;height:6px;border-radius:99px;background:var(--gray-100);overflow:hidden;min-width:60px}
+    .rt-prop-fill{display:block;height:100%;border-radius:99px;background:var(--gray-400)}
+    .rt-prop-fill.success{background:var(--success)}
+
+    /* Bloque inferior en 3 columnas (1 columna en pantallas chicas) */
+    .rt-dash-grid{display:grid;grid-template-columns:1.1fr 1.25fr 1fr;gap:var(--space-4);align-items:start}
+    @media(max-width:1100px){.rt-dash-grid{grid-template-columns:1fr}}
+    .rt-dash-panel{padding:0;display:flex;flex-direction:column;overflow:hidden}
+    .rt-dash-panel-head{display:flex;align-items:center;gap:9px;padding:14px 16px;border-bottom:1px solid var(--gray-100)}
+    .rt-dash-panel-head .rt-subtitulo{margin:0}
+    .rt-dash-panel-icon{width:28px;height:28px;border-radius:var(--radius-md);display:grid;place-items:center;
+      flex:none;background:var(--gray-100);color:var(--gray-600)}
+    .rt-dash-panel-icon svg{width:14px;height:14px}
+    .rt-dash-panel-body{flex:1;min-width:0}
+    .rt-dash-panel-body .rt-table-wrap{border:none;border-radius:0;box-shadow:none}
+    .rt-dash-panel-body .rt-insights-lista{padding:14px 16px}
+    .rt-dash-panel-body .rt-pendiente{border:none}
+    .rt-dash-panel-foot{border-top:1px solid var(--gray-100);display:flex;justify-content:center;padding:6px}
+    .rt-dash-link{font:inherit;font-size:12.5px;font-weight:600;color:var(--gray-600);background:none;border:none;
+      border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.13s}
+    .rt-dash-link:hover{color:var(--black);background:var(--gray-50)}
+    .rt-dash-link svg{width:13px;height:13px}
+
+    /* Delta compacto (columna "Vs. per. ant." de sucursales) */
+    .rt-delta-mini{display:inline-flex;align-items:center;gap:2px;font-size:11.5px;font-weight:700}
+    .rt-delta-mini svg{width:10px;height:10px}
+    .rt-delta-mini.up{color:var(--success)}
+    .rt-delta-mini.down{color:var(--danger)}
+    .rt-delta-mini.flat{color:var(--gray-400);font-weight:500}
+    .rt-delta-mini .arrow-up{transform:rotate(180deg)}
+
+    /* Sparklines (motor de series, Fase 1): SVG nativo estirado al contenedor;
+       vector-effect mantiene el trazo sin deformar. Color por currentColor:
+       accent en el hero (Ventas), color de sucursal en la tabla. */
+    .rt-sparkline{display:block;color:var(--accent)}
+    .rt-sparkline path{fill:none;stroke:currentColor;stroke-width:1.5;vector-effect:non-scaling-stroke;
+      stroke-linejoin:round;stroke-linecap:round}
+    .rt-sparkline circle{fill:currentColor}
+    .rt-spark-hero{width:100%;max-width:340px;height:36px;margin-top:4px}
+    .rt-spark-suc{width:76px;height:20px}
+    th.rt-col-tendencia, td.rt-col-tendencia{width:92px}
+    @media(max-width:700px){ th.rt-col-tendencia, td.rt-col-tendencia{display:none} }
+
+    /* Top productos por ventas: ranking + barra proporcional al mayor */
+    .rt-top-lista{display:flex;flex-direction:column;padding:6px 0}
+    .rt-top-fila{display:grid;grid-template-columns:26px 52px minmax(0,1fr) auto 104px;gap:10px;align-items:center;
+      padding:8px 16px;border-bottom:1px solid var(--gray-50);font-size:12.5px}
+    .rt-top-fila:last-child{border-bottom:none}
+    .rt-top-rank{width:22px;height:22px;border-radius:50%;background:var(--gray-100);color:var(--gray-600);
+      font-size:11px;font-weight:700;display:grid;place-items:center}
+    .rt-top-rank.rt-top-podio{background:var(--croma-black);color:#fff}
+    .rt-top-cod{font-size:11px;font-weight:700;color:var(--gray-400)}
+    .rt-top-nombre{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rt-top-ventas{display:flex;flex-direction:column;gap:3px;text-align:right}
+    .rt-top-ventas b{font-size:12.5px;font-variant-numeric:tabular-nums}
+    .rt-top-bar{height:5px;border-radius:99px;background:var(--gray-100);overflow:hidden}
+    .rt-top-bar span{display:block;height:100%;border-radius:99px;background:var(--info)}
+    @media(max-width:640px){
+      .rt-top-fila{grid-template-columns:26px 44px minmax(0,1fr) 88px}
+      .rt-top-marca{display:none}
+    }
+
+    /* Vista Marcas -- KPIs en 2 columnas solo en tablet (601-900px), aislado del
+       .rt-kpis compartido (Dashboard/Oportunidades no se tocan). */
+    @media (min-width:601px) and (max-width:900px){
+      .rt-marcas-kpis{grid-template-columns:repeat(2,1fr)}
+    }
+
+    /* Vista Marcas -- encabezado */
+    .rt-marcas-header{margin-bottom:var(--space-4)}
+    .rt-marcas-header p{font-size:13px;color:var(--gray-400);margin-top:2px}
+    .rt-marcas-header .rt-note{padding:0;border-top:none;margin-top:4px}
+
+    .rt-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .rt-panel-head .rt-subtitulo{margin:0}
+
+    /* Grafico de barras "Ventas por marca" */
+    .rt-chart-toggle{display:flex;gap:4px}
+    .rt-barras-lista{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:2px}
+    .rt-barra-fila{display:flex;align-items:center;gap:10px;width:100%;font:inherit;background:none;
+      border:none;border-radius:8px;padding:4px 6px;cursor:pointer;text-align:left;transition:background-color .13s}
+    .rt-barra-fila:hover{background:var(--gray-50)}
+    .rt-barra-fila.rt-marcas-activa{background:var(--accent-s)}
+    .rt-barra-nombre{width:120px;flex:none;font-size:12.5px;font-weight:600;color:var(--black);
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rt-barra-track{flex:1;height:14px;border-radius:99px;background:var(--gray-100);overflow:hidden}
+    .rt-barra-fill{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .2s}
+    .rt-barra-valor{width:64px;flex:none;text-align:right;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+
+    /* Grafico de dona "Participacion de ventas" */
+    .rt-dona-wrap{display:flex;flex-direction:column;align-items:center;gap:var(--space-4)}
+    .rt-dona-circulo{width:180px;height:180px;border-radius:50%;position:relative;flex:none}
+    .rt-dona-circulo::after{content:'';position:absolute;inset:26px;border-radius:50%;background:var(--white)}
+    .rt-dona-centro{position:absolute;inset:26px;border-radius:50%;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;text-align:center;z-index:1}
+    .rt-dona-centro b{font-family:var(--font-display);font-size:20px;letter-spacing:-.01em}
+    .rt-dona-centro span{font-size:10.5px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em}
+    .rt-dona-leyenda{display:flex;flex-direction:column;gap:6px;width:100%}
+    .rt-dona-item{display:flex;align-items:center;gap:8px;width:100%;font:inherit;background:none;
+      border:none;border-radius:8px;padding:5px 6px;cursor:pointer;text-align:left;font-size:12.5px;transition:background-color .13s}
+    .rt-dona-item:hover{background:var(--gray-50)}
+    .rt-dona-item.rt-marcas-activa{background:var(--accent-s)}
+    .rt-dona-chip{width:10px;height:10px;border-radius:3px;flex:none}
+    .rt-dona-item-nombre{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+    .rt-dona-item-valor{flex:none;color:var(--gray-400);font-variant-numeric:tabular-nums}
+
+    /* Detalle de marca seleccionada */
+    .rt-marcas-detalle{border-color:var(--accent);margin-bottom:var(--space-4)}
+    .rt-marcas-detalle-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .rt-marcas-detalle-titulo{font-family:var(--font-display);font-size:17px;letter-spacing:.5px}
+    .rt-marcas-detalle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+    .rt-marcas-detalle-item .kl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400)}
+    .rt-marcas-detalle-item .kv{font-family:var(--font-display);font-size:19px;margin-top:2px}
+
+    /* Toolbar (buscador + filas por pagina) y tabla ordenable */
+    .rt-marcas-toolbar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .rt-marcas-search{position:relative;flex:1;min-width:200px;max-width:340px}
+    .rt-marcas-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray-400);width:15px;height:15px}
+    .rt-marcas-search input{width:100%;padding:7px 32px 7px 32px!important}
+    .rt-marcas-search-clear{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;
+      border:none;cursor:pointer;color:var(--gray-400);display:flex;padding:4px;border-radius:6px}
+    .rt-marcas-search-clear:hover{color:var(--black);background:var(--gray-100)}
+    .rt-marcas-filas-sel{display:flex;flex-direction:column;gap:3px}
+    .rt-marcas-filas-sel label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray-400)}
+    table.rt-table th.rt-th-ordenable{padding:0}
+    .rt-th-btn{background:none;border:none;font:inherit;font-size:10.5px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.05em;color:var(--gray-400);cursor:pointer;display:flex;align-items:center;
+      padding:9px 12px;width:100%;white-space:nowrap}
+    .rt-th-btn:hover{color:var(--black)}
+    .rt-th-arrow{opacity:.35;font-size:9px;margin-left:3px}
+    th.rt-th-sorted .rt-th-arrow{opacity:1;color:var(--black)}
+    tr.rt-marcas-fila-activa{background:var(--accent-s)}
+    tr.rt-marcas-fila-activa:hover{background:var(--accent-s)}
+    .rt-marcas-detalle-cta{margin-top:12px}
+
+    /* Vista Productos -- KPIs en 2 columnas solo en tablet (601-900px), aislado del
+       .rt-kpis compartido, mismo patron que .rt-marcas-kpis. */
+    @media (min-width:601px) and (max-width:900px){
+      .rt-productos-kpis{grid-template-columns:repeat(2,1fr)}
+    }
+
+    /* Panel de filtros de Productos -- siempre visible (a diferencia del viejo
+       rtFormularioFiltro que desaparecia una vez aplicado un filtro), permite combinar
+       campos sobre un filtro ya activo (ej. agregar rubro a una marca precargada). */
+    .rt-productos-filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin-bottom:var(--space-4)}
+    .rt-productos-filtros .fc{min-width:0}
+    .rt-productos-filtros-acciones{display:flex;gap:8px;align-items:end}
+    .rt-productos-origen{display:inline-flex;align-items:center;gap:6px;background:var(--info-bg);color:var(--info);
+      font-size:12px;font-weight:600;padding:5px 10px;border-radius:99px;margin-bottom:10px}
+    .rt-productos-origen svg{width:14px;height:14px}
+
+    .rt-productos-toolbar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .rt-productos-search{position:relative;flex:1;min-width:200px;max-width:340px}
+    .rt-productos-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray-400);width:15px;height:15px}
+    .rt-productos-search input{width:100%;padding:7px 32px 7px 32px!important}
+    .rt-productos-search-clear{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;
+      border:none;cursor:pointer;color:var(--gray-400);display:flex;padding:4px;border-radius:6px}
+    .rt-productos-search-clear:hover{color:var(--black);background:var(--gray-100)}
+    .rt-productos-filas-sel{display:flex;flex-direction:column;gap:3px}
+    .rt-productos-filas-sel label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray-400)}
+
+    tr.rt-productos-fila-expandible{cursor:pointer}
+    tr.rt-productos-fila-activa{background:var(--accent-s)}
+    tr.rt-productos-fila-activa:hover{background:var(--accent-s)}
+    .rt-productos-chevron{transition:transform .15s;display:inline-flex}
+    .rt-productos-chevron.abierto{transform:rotate(90deg)}
+    tr.rt-productos-detalle-fila > td{padding:0;border-top:none}
+    .rt-productos-detalle{padding:16px 18px;background:var(--gray-50);border-top:1px solid var(--gray-100)}
+    .rt-productos-detalle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+    .rt-productos-detalle-item .kl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400)}
+    .rt-productos-detalle-item .kv{font-family:var(--font-display);font-size:17px;margin-top:2px}
+    .rt-productos-ubicaciones{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    .rt-ubicacion-fila{display:flex;align-items:center;gap:10px;font-size:12.5px}
+    .rt-ubicacion-nombre{width:150px;flex:none;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rt-ubicacion-valor{width:120px;flex:none;text-align:right;color:var(--gray-600)}
+
+    .rt-search{max-width:480px;margin-bottom:14px}
+    .rt-search input{font:inherit;font-size:14px;width:100%;border:1px solid var(--gray-200);
+      border-radius:10px;padding:10px 14px;background:var(--white)}
+    .rt-search input:focus{outline:2px solid var(--accent);outline-offset:1px}
+    .rt-results{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    .rt-result-item{display:flex;flex-direction:column;gap:2px;text-align:left;width:100%;
+      background:var(--white);border:1px solid var(--gray-100);border-radius:12px;
+      padding:10px 14px;cursor:pointer;font:inherit;transition:.13s}
+    .rt-result-item:hover{border-color:var(--black);box-shadow:var(--sh)}
+    .rt-result-cod{font-size:11px;font-weight:700;color:var(--gray-600)}
+    .rt-result-desc{font-size:14px;color:var(--black)}
+    .rt-result-meta{font-size:12px;color:var(--gray-400)}
+
+    .rt-detalle-header{display:flex;align-items:baseline;justify-content:space-between;
+      flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--gray-100)}
+    .rt-detalle-titulo{font-size:16px;font-weight:700}
+    .rt-detalle-total{font-size:13px;color:var(--gray-600)}
+    .rt-detalle-total b{color:var(--black);font-size:16px}
+    .rt-fila{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:10px 14px;
+      border-radius:10px;background:var(--white);border:1px solid var(--gray-100);margin-bottom:6px}
+    .rt-fila-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:140px}
+    .rt-fila-nombre{font-weight:600;font-size:14px}
+    .rt-fila-variante{font-size:12px;color:var(--gray-400)}
+    .rt-fila-cantidad{font-size:16px;font-weight:700;margin-left:auto}
+    .rt-fila-sinstock{opacity:.55}
+    .rt-fila-sinstock .rt-fila-cantidad{color:var(--gray-400);font-weight:500}
+    /* Fila de totales -- se repite arriba (dentro de thead, debajo de los encabezados) y
+       abajo (tfoot), mismo contenido armado por rtStockVentasFilaTotales(). */
+    .rt-stockventas-total td{font-weight:700;background:var(--gray-50)}
+    .rt-stockventas-tabla tfoot .rt-stockventas-total td{border-top:2px solid var(--gray-100)}
+    .rt-stockventas-tabla thead .rt-stockventas-total td{border-bottom:2px solid var(--gray-100)}
+    /* Tabla con ~20 columnas (venta/stock x sucursal) -- padding mas chico que .rt-table
+       para que entren mas columnas antes de necesitar el scroll horizontal interno. */
+    .rt-stockventas-tabla th, .rt-stockventas-tabla td{padding:6px 7px;font-size:12.5px}
+    /* Rubro/Subrubro/Marca/Color sin tope se acomodaban solos al valor mas largo y
+       forzaban el slider horizontal de toda la tabla -- mismo criterio que .pname
+       (Producto), pero mas angosto. title= en el td conserva el texto completo al hover. */
+    .rt-stockventas-tabla td.rt-sv-truncar{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    /* Columnas de venta/stock por sucursal + deposito -- angostas y con el encabezado en
+       2 lineas (ej. "Venta" arriba, "Paseo" abajo), como la planilla Excel de referencia. */
+    .rt-stockventas-tabla th.rt-sv-suc, .rt-stockventas-tabla td.rt-sv-suc{
+      width:47px;min-width:47px;max-width:47px;text-align:center;padding:4px 2px}
+    .rt-stockventas-tabla th.rt-sv-suc{white-space:normal;line-height:1.25;font-size:9.5px;vertical-align:bottom}
+    /* Venta Total/Stock Total son columnas ordenables (th con boton adentro, ver
+       rtProductosThOrdenable) -- el boton necesita su propio override para envolver el
+       texto en 2 lineas igual que el resto de rt-sv-suc, .rt-th-btn de base no envuelve. */
+    .rt-stockventas-tabla th.rt-sv-suc .rt-th-btn{white-space:normal;padding:4px 2px;
+      font-size:9.5px;justify-content:center;text-align:center;line-height:1.25}
+    /* Color por sucursal en los encabezados -- mismo codigo de color que ya usan los
+       badges de sucursal en toda la app (.s01..s14, ver rtSucursalBadge). En los datos
+       solo se tiñe el fondo (variante rt-sv-bg-*), nunca el texto, para no perder
+       contraste en los numeros. Selector con .rt-stockventas-tabla + td para pisar el
+       fondo gris de la fila de totales (mas especifico que ".rt-stockventas-total td"). */
+    .rt-stockventas-tabla td.rt-sv-bg-s01{background:var(--suc-01-s)}
+    .rt-stockventas-tabla td.rt-sv-bg-s05{background:var(--suc-05-s)}
+    .rt-stockventas-tabla td.rt-sv-bg-s09{background:var(--suc-09-s)}
+    .rt-stockventas-tabla td.rt-sv-bg-s10{background:var(--suc-10-s)}
+    .rt-stockventas-tabla td.rt-sv-bg-s12{background:var(--suc-12-s)}
+    .rt-stockventas-tabla td.rt-sv-bg-s14{background:var(--suc-14-s)}
+    /* Filtros de Talle/Color -- <details>/<summary> nativo, sin JS de posicionamiento. */
+    .rt-sv-filtro{position:relative}
+    .rt-sv-filtro-btn{cursor:pointer;list-style:none;user-select:none}
+    .rt-sv-filtro-btn::-webkit-details-marker{display:none}
+    .rt-sv-filtro-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:20;background:var(--white);
+      border:1px solid var(--gray-100);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.14);
+      padding:8px;min-width:170px;max-height:280px;overflow-y:auto}
+    .rt-sv-filtro-opcion{display:flex;align-items:center;gap:6px;padding:4px 4px;font-size:13px;white-space:nowrap;cursor:pointer}
+    .rt-sv-filtro-opcion:hover{background:var(--gray-50);border-radius:4px}
+    .rt-sv-filtro-buscar{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:12.5px;
+      border:1px solid var(--gray-200);border-radius:6px;padding:5px 8px;margin-bottom:6px;background:var(--gray-50)}
+    .rt-sv-filtro-limpiar{display:block;width:100%;text-align:left;margin-bottom:4px;background:none;
+      border:none;border-bottom:1px solid var(--gray-100);color:var(--accent);font-size:12px;
+      cursor:pointer;padding:2px 4px 6px}
+
+    @media(max-width:640px){
+      .wrap{padding:14px 14px 60px}
+      .fbar{gap:8px}
+      .fbar-end{margin-left:0;width:100%}
+      .dash-grid{grid-template-columns:1fr}
+      .topbar{padding:0 .85rem;gap:.6rem}
+      .brand{min-width:0}
+      .brand-divider,.brand-section{display:none}
+      .top-actions{gap:6px}
+    }
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
+      #splashScreen{transition:opacity .6s ease!important}
+      #splashLogo,#splashText{animation:splashLogoIn .7s cubic-bezier(0.390,0.575,0.565,1.000) both!important}
+      #splashText{animation-delay:.15s!important}
+    }
+
+    /* ===== SPLASH SCREEN ===== */
+    #splashScreen{position:fixed;inset:0;background:#0d0d0d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:99999;transition:opacity .6s ease}
+    #splashScreen.splash-hide{opacity:0;pointer-events:none}
+    #splashLogo{width:80px;height:80px;object-fit:contain;animation:splashLogoIn .7s cubic-bezier(0.390,0.575,0.565,1.000) both}
+    #splashText{font-family:var(--font-display);font-size:36px;letter-spacing:6px;color:#fff;animation:splashLogoIn .7s .15s cubic-bezier(0.390,0.575,0.565,1.000) both}
+    @keyframes splashLogoIn{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
+  </style>
+</head>
+<body>
+
+<div id="splashScreen">
+  <img src="tridente_solo.png" alt="Croma" id="splashLogo">
+  <span id="splashText">CROMA</span>
+</div>
+
+<div id="authCheck">
+  <div class="spinner" id="authSpinner"></div>
+  <p id="authMsg">Verificando acceso…</p>
+  <p id="authFallback" style="display:none;font-size:13px;color:#a0a09a;margin-top:8px">
+    Accedé desde el hub de Croma:
+    <a href="https://croma-app.com.ar/" style="color:#fff;font-weight:600">Ir al hub →</a>
+  </p>
+</div>
+
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <img src="tridente_solo.png" class="brand-tridente" alt="Croma" onerror="this.style.display='none'">
+      <span class="brand-logo">CROMA</span>
+      <span class="brand-divider">|</span>
+      <span class="brand-section">INSUMOS</span>
+    </div>
+    <div class="top-actions">
+      <div class="sesion-chip">
+        <span class="sesion-nombre" id="hUser"><svg class="icon-16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <button class="sesion-logout" id="btnSalir" title="Cerrar sesión">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+      <button class="topbar-icon-btn" id="btnHub" title="Volver al hub" onclick="location.href='https://croma-app.com.ar/'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="wrap" id="rtWrap">
+    <div id="rtApp">
+      <div id="rtPanelHost"></div>
+    </div>
+  </div>
+</div>
+
+<script src="croma-icons.js?v=20260729-1"></script>
+<script src="insumos-calc.js?v=20261013-1"></script>
+<script>
+'use strict';
+
+const HUB_URL = 'https://croma-app.com.ar/';
+const STOCK_API_URL = 'https://stock-api.croma-app.com.ar';
+
+const nf  = new Intl.NumberFormat('es-AR');
+const nf1 = new Intl.NumberFormat('es-AR', { maximumFractionDigits:1 });
+const money  = v => '$' + nf.format(Math.round(v));
+const pct    = v => (v * 100).toFixed(1).replace('.', ',') + '%';
+const norm   = s => String(s ?? '').replace(/\s+/g,' ').trim().toUpperCase();
+const esc    = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+function getToken() { return sessionStorage.getItem('croma_token') || localStorage.getItem('croma_token'); }
+// Rotaciones es hoy la unica seccion de Tiempo real que manda el token a croma-api --
+// el resto de los endpoints de /analisis/* siguen sin exigir auth (alcance acotado,
+// pedido explicito del usuario 2026-07-23, ver docs/DECISIONS.md).
+function rtRotAuthHeaders() {
+  const t = getToken();
+  return t ? { Authorization: 'Bearer ' + t } : {};
+}
+function getUser() {
+  const t = getToken(); if (!t) return null;
+  try {
+    const p = JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    return p.exp * 1000 < Date.now() ? null : p;
+  } catch(e) { return null; }
+}
+
+(function init() {
+  const hash = location.hash.slice(1);
+  if (hash) {
+    const token = new URLSearchParams(hash).get('token');
+    if (token) { sessionStorage.setItem('croma_token', token); history.replaceState(null,'',location.pathname); }
+  }
+  const user = getUser();
+  if (!user || user.rol !== 'admin') {
+    document.getElementById('authSpinner').style.display = 'none';
+    document.getElementById('authMsg').textContent = 'Sin acceso o sesión expirada.';
+    document.getElementById('authFallback').style.display = 'block';
+    return;
+  }
+  document.getElementById('authCheck').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const u = user.usuario || '';
+  document.getElementById('hUser').innerHTML = icon('user','icon-16') + ' ' + esc(u ? u.charAt(0).toUpperCase() + u.slice(1) : 'Usuario');
+  document.getElementById('btnSalir').addEventListener('click', () => { location.href = HUB_URL + '?logout=1'; });
+  // Diferido: el estado (let RT_INSUMOS*, más abajo en el mismo script) todavía no está
+  // inicializado cuando este IIFE corre de forma síncrona al parsear.
+  setTimeout(rtRenderVistaActual, 0);
+})();
+
+// ── Helpers de DOM ───────────────────────────────────────────────────────────
+// Boton chico con icono del helper icon() + texto -- unico lugar donde se arma este
+// patron (botones "Buscar"/"Filtrar" de Productos y Oportunidades), para no repetir
+// el mismo innerHTML a mano en cada vista.
+function rtBotonIcono(className, iconName, texto) {
+  const btn = rtEl('button', { className });
+  btn.type = 'button';
+  const span = rtEl('span', { className:'rt-boton-icono-svg' });
+  span.innerHTML = icon(iconName, 'icon-16'); // icono estatico, no dato de API
+  btn.appendChild(span);
+  btn.appendChild(document.createTextNode(texto));
+  return btn;
+}
+
+function rtEl(tag, opts) {
+  const e = document.createElement(tag);
+  if (opts) {
+    if (opts.className != null) e.className = opts.className;
+    if (opts.text != null) e.textContent = opts.text;
+    if (opts.html != null) e.innerHTML = opts.html;
+    if (opts.attrs) Object.keys(opts.attrs).forEach(k => e.setAttribute(k, opts.attrs[k]));
+  }
+  return e;
+}
+
+function rtEstado(container, tipo, mensaje, onRetry) {
+  if (!container) return;
+  container.replaceChildren();
+  if (tipo === 'ninguno') return;
+  const box = rtEl('div', { className:'rt-state' });
+  if (tipo === 'loading') {
+    box.appendChild(rtEl('div', { className:'spinner' }));
+    box.appendChild(rtEl('p', { text: mensaje || 'Cargando...' }));
+  } else if (tipo === 'error') {
+    const iconoErr = rtEl('div', { className:'rt-state-icon danger' });
+    iconoErr.innerHTML = icon('alertTriangle', ''); // icono estatico del helper
+    box.appendChild(iconoErr);
+    box.appendChild(rtEl('p', { text: mensaje || 'Error de conexión.' }));
+    if (onRetry) {
+      const btn = rtBotonIcono('btn-sm', 'refresh', 'Reintentar');
+      btn.addEventListener('click', onRetry);
+      box.appendChild(btn);
+    }
+  } else if (tipo === 'vacio') {
+    const iconoVacio = rtEl('div', { className:'rt-state-icon' });
+    iconoVacio.innerHTML = icon('info', ''); // icono estatico del helper
+    box.appendChild(iconoVacio);
+    box.appendChild(rtEl('p', { text: mensaje || 'Sin datos.' }));
+  }
+  container.appendChild(box);
+}
+
+// ── Tabla genérica ───────────────────────────────────────────────────────────
+// headers: string[] o {text, className}[] (className opcional, para ocultar la columna
+// por breakpoint via CSS -- debe coincidir con el className usado en las celdas del
+// mismo indice). opts.wrapClassName/tableClassName: clases extra sobre el wrap/table
+// por defecto (compatibilidad con los 4 call-sites existentes que no pasan opts).
+function rtTabla(headers, filas, renderFila, opts) {
+  const wrap = rtEl('div', { className:'rt-table-wrap' + (opts && opts.wrapClassName ? ' ' + opts.wrapClassName : '') });
+  const table = rtEl('table', { className:'rt-table' + (opts && opts.tableClassName ? ' ' + opts.tableClassName : '') });
+  const thead = rtEl('thead');
+  const trh = rtEl('tr');
+  headers.forEach(h => {
+    const esObjeto = h && typeof h === 'object';
+    const th = rtEl('th', { className: esObjeto ? (h.className || '') : '', text: esObjeto ? h.text : h });
+    if (esObjeto && h.title) th.title = h.title;
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh);
+  table.appendChild(thead);
+  const tbody = rtEl('tbody');
+  filas.forEach(f => tbody.appendChild(renderFila(f)));
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  return wrap;
+}
+
+function rtRenderVistaActual() {
+  const host = document.getElementById('rtPanelHost');
+  if (!host) return;
+  host.replaceChildren();
+  renderRTInsumos(host);
+}
+
+// Pestaña Insumos (/analisis/insumos) -- independiente de RT_DESDE/RT_HASTA, ver
+// comentario del endpoint en croma-api. Se pide una vez y se reutiliza (cache de 15 min
+// ya la tiene el backend); "Actualizar" del header no la refresca a proposito, tiene su
+// propio boton dentro de la vista.
+let RT_INSUMOS = null, RT_INSUMOS_LOADING = false, RT_INSUMOS_ERROR = null;
+
+// ── Insumos ──────────────────────────────────────────────────────────────────
+// Rediseño 2026-10-13. Datos: GET /analisis/insumos (stock utilizable, consumo y
+// cobertura calculados en croma-api). Los parámetros de la calculadora son una
+// SIMULACIÓN del lado del cliente (insumos-calc.js): no escriben stock ni generan
+// compras. El período global de arriba no afecta esta pestaña.
+let RT_INSUMOS_PARAMS = { dias:'90', plazo:'0', margen:'0' };
+let RT_INSUMOS_AVISO = '', RT_INSUMOS_AVISO_TIMER = null;
+let RT_INSUMOS_GUARDANDO = false;
+
+async function rtCargarInsumos(forzar) {
+  if (RT_INSUMOS_LOADING) return;
+  RT_INSUMOS_LOADING = true; RT_INSUMOS_ERROR = null;
+  rtRenderVistaActual();
+  try {
+    const resp = await fetch(STOCK_API_URL + '/analisis/insumos' + (forzar ? '?refresh=1' : ''));
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+    RT_INSUMOS = data;
+  } catch (err) {
+    // Si ya había datos se conservan (se muestran como "anteriores", ver render).
+    RT_INSUMOS_ERROR = err.message;
+  } finally {
+    RT_INSUMOS_LOADING = false;
+    rtRenderVistaActual();
+  }
+}
+
+function rtInsumosFechaHora(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('es-AR') + ' ' + d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+}
+function rtInsumosHora(iso) {
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+}
+function rtInsumosTextoCobertura(f) {
+  return f.cobertura_dias === null || f.cobertura_dias === undefined ? '—' : nf1.format(f.cobertura_dias) + ' días';
+}
+function rtInsumosTextoInconsistencia(codigo, fila) {
+  const nombreLocal = (c) => { const s = (fila.sucursales || []).find(x => x.centro === c); return s ? s.nombre : 'centro ' + c; };
+  if (codigo === 'deposito_90_negativo') return 'El depósito 90 da negativo (el depósito central es menor que los fallados 93). Revisar en Sysneo.';
+  if (codigo.indexOf('stock_negativo:') === 0) return 'Stock negativo en ' + nombreLocal(codigo.split(':')[1]) + '. Revisar en Sysneo.';
+  if (codigo.indexOf('centro_desconocido:') === 0) return 'Hay stock en un centro no reconocido (' + codigo.split(':')[1] + ').';
+  return codigo;
+}
+
+async function rtInsumosCopiarTexto(texto) {
+  try { await navigator.clipboard.writeText(texto); return true; } catch (e) { /* cae al plan B */ }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = texto; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch (e) { return false; }
+}
+function rtInsumosAvisar(msg) {
+  RT_INSUMOS_AVISO = msg;
+  const el = document.getElementById('rtInsAviso');
+  if (el) el.textContent = msg;
+  clearTimeout(RT_INSUMOS_AVISO_TIMER);
+  RT_INSUMOS_AVISO_TIMER = setTimeout(() => {
+    RT_INSUMOS_AVISO = '';
+    const e2 = document.getElementById('rtInsAviso');
+    if (e2) e2.textContent = '';
+  }, 3500);
+}
+
+// ── Modales (se agregan a document.body: sobreviven a los re-render del panel) ──
+function rtInsumosCerrarModal(overlay) {
+  if (overlay && overlay.parentNode) overlay.remove();
+  const previo = document.querySelector('.rt-ins-overlay:last-of-type');
+  if (previo) { const f = previo.querySelector('button,input,textarea'); if (f) f.focus(); }
+}
+function rtInsumosCrearModal(titulo, opts) {
+  const overlay = rtEl('div', { className:'rt-modal-overlay rt-ins-overlay' });
+  const box = rtEl('div', { className:'card rt-modal-box' + (opts && opts.chico ? ' rt-ins-modal-chico' : ' rt-ins-modal-grande'),
+    attrs:{ role:'dialog', 'aria-modal':'true', 'aria-label': titulo } });
+  box.appendChild(rtEl('h3', { className:'rt-subtitulo', text: titulo }));
+  overlay.appendChild(box);
+  overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) rtInsumosCerrarModal(overlay); });
+  overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); rtInsumosCerrarModal(overlay); } });
+  document.body.appendChild(overlay);
+  return { overlay, box };
+}
+
+function rtInsumosAbrirEdicionMedidas(f, alGuardar) {
+  const { overlay, box } = rtInsumosCrearModal('Editar medidas · ' + f.codigo, { chico:true });
+  const grp1 = rtEl('div', { className:'form-group' });
+  grp1.appendChild(rtEl('label', { className:'form-label', text:'Tamaño', attrs:{ for:'rtInsMedTam' } }));
+  const inTam = rtEl('input', { className:'form-control', attrs:{ id:'rtInsMedTam', type:'text', maxlength:'40', placeholder:'Ej: ZAPAS' } });
+  inTam.value = f.tamano || '';
+  grp1.appendChild(inTam);
+  const grp2 = rtEl('div', { className:'form-group' });
+  grp2.appendChild(rtEl('label', { className:'form-label', text:'Medidas (cm)', attrs:{ for:'rtInsMedMed' } }));
+  const inMed = rtEl('input', { className:'form-control', attrs:{ id:'rtInsMedMed', type:'text', maxlength:'40', placeholder:'Ej: 30X12X41' } });
+  inMed.value = f.medidas || '';
+  grp2.appendChild(inMed);
+  box.appendChild(grp1); box.appendChild(grp2);
+
+  const error = rtEl('p', { className:'form-error', attrs:{ role:'alert' } });
+  box.appendChild(error);
+
+  const acciones = rtEl('div', { className:'rt-modal-acciones' });
+  const cancelar = rtEl('button', { className:'btn-sm', text:'Cancelar', attrs:{ type:'button' } });
+  const guardar = rtEl('button', { className:'btn-sm rt-modal-confirmar', text:'Guardar', attrs:{ type:'button' } });
+  cancelar.addEventListener('click', () => rtInsumosCerrarModal(overlay));
+  guardar.addEventListener('click', async () => {
+    if (RT_INSUMOS_GUARDANDO) return;
+    RT_INSUMOS_GUARDANDO = true; guardar.disabled = true; cancelar.disabled = true;
+    guardar.textContent = 'Guardando…'; error.textContent = '';
+    try {
+      const resp = await fetch(STOCK_API_URL + '/analisis/insumos/' + encodeURIComponent(f.codigo) + '/medidas', {
+        method:'PUT',
+        headers: { ...rtRotAuthHeaders(), 'Content-Type':'application/json' },
+        body: JSON.stringify({ tamano: inTam.value, medidas: inMed.value }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+      f.tamano = data.tamano; f.medidas = data.medidas;
+      rtInsumosCerrarModal(overlay);
+      if (alGuardar) alGuardar();
+      rtRenderVistaActual();
+    } catch (err) {
+      error.textContent = 'No se pudieron guardar las medidas: ' + err.message;
+      guardar.disabled = false; cancelar.disabled = false; guardar.textContent = 'Guardar';
+    } finally {
+      RT_INSUMOS_GUARDANDO = false;
+    }
+  });
+  [inTam, inMed].forEach(inp => inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') guardar.click(); }));
+  acciones.appendChild(cancelar); acciones.appendChild(guardar);
+  box.appendChild(acciones);
+  inTam.focus();
+}
+
+function rtInsumosAbrirDetalle(codigo) {
+  const f = RT_INSUMOS && RT_INSUMOS.data.find(x => x.codigo === codigo);
+  if (!f) return;
+  const { overlay, box } = rtInsumosCrearModal(f.codigo + ' · ' + (f.producto || ''));
+  const C = InsumosCalc;
+  const umbral = RT_INSUMOS.umbral_cobertura_dias;
+  const est = C.estadoCobertura(f, umbral);
+
+  const datos = rtEl('dl', { className:'rt-ins-dl' });
+  const par = (k, v) => { datos.appendChild(rtEl('dt', { text:k })); datos.appendChild(rtEl('dd', { text:v })); };
+  par('Tamaño', f.tamano || '—');
+  // Medidas con su acción de edición aparte (no se mezcla con las columnas de stock).
+  datos.appendChild(rtEl('dt', { text:'Medidas (cm)' }));
+  const ddMed = rtEl('dd');
+  ddMed.appendChild(rtEl('span', { text: f.medidas || '—' }));
+  const btnEd = rtEl('button', { className:'btn-sm', text:'Editar medidas', attrs:{ type:'button' } });
+  btnEd.style.marginLeft = '10px';
+  ddMed.appendChild(btnEd);
+  datos.appendChild(ddMed);
+  par('Stock utilizable total', nf.format(f.stock_utilizable) + ' u.');
+  par('Depósito 90', nf.format(f.stock_deposito_90_crudo !== undefined ? f.stock_deposito_90_crudo : f.stock_deposito_90) + ' u.');
+  par('Locales activos', nf.format(f.stock_locales_crudo !== undefined ? f.stock_locales_crudo : f.stock_locales) + ' u.');
+  par('Fallados 93 (no cuenta)', nf.format(f.stock_fallados_93) + ' u.');
+  if (f.stock_no_operativo) par('Sucursales cerradas (no cuenta)', nf.format(f.stock_no_operativo) + ' u.');
+  par('Consumo (últimos ' + RT_INSUMOS.ventana_consumo_dias + ' días)', nf.format(f.salidas_90d) + ' u. · ' + (f.consumo_diario_estimado !== null ? nf1.format(f.consumo_diario_estimado) + ' por día' : 'sin consumo reciente'));
+  par('Cobertura total', rtInsumosTextoCobertura(f) + ' · ' + est.texto);
+  par('Último ingreso (informativo)', f.ultimo_ingreso ? new Date(f.ultimo_ingreso).toLocaleDateString('es-AR') : '—');
+  par('Cantidad recibida (informativo)', f.cantidad_ultimo_ingreso != null ? nf.format(f.cantidad_ultimo_ingreso) + ' u.' : '—');
+  box.appendChild(datos);
+
+  if (f.inconsistencias && f.inconsistencias.length) {
+    const al = rtEl('div', { className:'alert alert-warning', attrs:{ role:'alert' } });
+    al.appendChild(rtEl('div', { text: f.inconsistencias.map(c => rtInsumosTextoInconsistencia(c, f)).join(' ') }));
+    box.appendChild(al);
+  }
+
+  box.appendChild(rtEl('h4', { className:'rt-subtitulo', text:'Detalle por sucursal' }));
+  if (f.sucursales && f.sucursales.length) {
+    box.appendChild(rtTabla(
+      ['Local', { text:'Stock', className:'rt-ins-num' }, { text:'Consumo diario', className:'rt-ins-num' }, { text:'Cobertura local', className:'rt-ins-num' }],
+      f.sucursales,
+      (s) => {
+        const tr = rtEl('tr');
+        tr.appendChild(rtEl('td', { text: s.nombre }));
+        tr.appendChild(rtEl('td', { className:'rt-ins-num', text: nf.format(s.stock) }));
+        tr.appendChild(rtEl('td', { className:'rt-ins-num', text: s.consumo_diario_estimado !== null ? nf1.format(s.consumo_diario_estimado) : 'sin consumo' }));
+        tr.appendChild(rtEl('td', { className:'rt-ins-num', text: s.cobertura_dias !== null ? nf1.format(s.cobertura_dias) + ' días' : '—' }));
+        return tr;
+      },
+      { tableClassName:'rt-ins-tabla-detalle' }
+    ));
+    box.appendChild(rtEl('p', { className:'rt-note rt-ins-nota', text:'Consumo real de cada local (ventas y salidas de ese local en los últimos ' + RT_INSUMOS.ventana_consumo_dias + ' días), sin repartir el consumo global. No incluye sugerencias de distribución.' }));
+  } else {
+    box.appendChild(rtEl('p', { className:'rt-note', text:'No hay detalle por sucursal disponible.' }));
+  }
+
+  const acciones = rtEl('div', { className:'rt-modal-acciones' });
+  const cerrar = rtEl('button', { className:'btn-sm rt-modal-confirmar', text:'Cerrar', attrs:{ type:'button' } });
+  cerrar.addEventListener('click', () => rtInsumosCerrarModal(overlay));
+  acciones.appendChild(cerrar);
+  box.appendChild(acciones);
+
+  btnEd.addEventListener('click', () => {
+    rtInsumosAbrirEdicionMedidas(f, () => { rtInsumosCerrarModal(overlay); rtInsumosAbrirDetalle(codigo); });
+  });
+  cerrar.focus();
+}
+
+function rtInsumosAbrirCorreo(texto, fecha, conPropios) {
+  const C = InsumosCalc;
+  const { overlay, box } = rtInsumosCrearModal('Preparar correo');
+  box.appendChild(rtEl('p', { className:'rt-note rt-ins-nota', text:'Vista previa editable. No se envía nada automáticamente: copiá el texto y pegalo en tu correo.' }));
+  const g1 = rtEl('div', { className:'form-group' });
+  g1.appendChild(rtEl('label', { className:'form-label', text:'Asunto', attrs:{ for:'rtInsCorreoAsunto' } }));
+  const asunto = rtEl('input', { className:'form-control', attrs:{ id:'rtInsCorreoAsunto', type:'text' } });
+  asunto.value = C.asuntoCorreo(fecha, conPropios);
+  g1.appendChild(asunto);
+  const g2 = rtEl('div', { className:'form-group' });
+  g2.appendChild(rtEl('label', { className:'form-label', text:'Cuerpo', attrs:{ for:'rtInsCorreoCuerpo' } }));
+  const cuerpo = rtEl('textarea', { className:'form-textarea rt-ins-cuerpo', attrs:{ id:'rtInsCorreoCuerpo', rows:'12' } });
+  cuerpo.value = texto;
+  g2.appendChild(cuerpo);
+  box.appendChild(g1); box.appendChild(g2);
+
+  const estado = rtEl('p', { className:'rt-ins-aviso', attrs:{ role:'status', 'aria-live':'polite' } });
+  box.appendChild(estado);
+
+  const acciones = rtEl('div', { className:'rt-modal-acciones' });
+  const cerrar = rtEl('button', { className:'btn-sm', text:'Cerrar', attrs:{ type:'button' } });
+  const copiar = rtEl('button', { className:'btn-sm rt-modal-confirmar', text:'Copiar', attrs:{ type:'button' } });
+  cerrar.addEventListener('click', () => rtInsumosCerrarModal(overlay));
+  copiar.addEventListener('click', async () => {
+    const ok = await rtInsumosCopiarTexto('Asunto: ' + asunto.value + '\n\n' + cuerpo.value);
+    estado.textContent = ok ? 'Correo copiado al portapapeles.' : 'No se pudo copiar automáticamente: seleccioná el texto y copialo a mano.';
+  });
+  acciones.appendChild(cerrar); acciones.appendChild(copiar);
+  box.appendChild(acciones);
+  asunto.focus();
+}
+
+// ── Otros insumos (propios): se cargan a mano, no vienen de Sysneo ──────────────
+// Datos en RT_INSUMOS.propios (los trae GET /analisis/insumos junto con las bolsas).
+// Alta/edición/baja: /analisis/insumos-propios (solo admin). Tras cada cambio se
+// actualiza la lista local con lo que devolvió el servidor.
+let RT_INSUMOS_PROPIO_GUARDANDO = false;
+
+function rtInsumosPropiosOrdenar() {
+  const peso = { reponer:0, ok:1, sin_punto:2 };
+  RT_INSUMOS.propios.sort((a, b) => (peso[a.estado] - peso[b.estado]) || a.nombre.localeCompare(b.nombre, 'es'));
+}
+function rtInsumosPropiosAplicar(insumo) {
+  if (!RT_INSUMOS.propios) RT_INSUMOS.propios = [];
+  const i = RT_INSUMOS.propios.findIndex(p => p.id === insumo.id);
+  if (i >= 0) RT_INSUMOS.propios[i] = insumo; else RT_INSUMOS.propios.push(insumo);
+  rtInsumosPropiosOrdenar();
+}
+function rtInsumosPropiosQuitar(id) {
+  RT_INSUMOS.propios = (RT_INSUMOS.propios || []).filter(p => p.id !== id);
+}
+
+async function rtInsumosPropiosLlamar(metodo, id, body) {
+  const resp = await fetch(STOCK_API_URL + '/analisis/insumos-propios' + (id ? '/' + id : ''), {
+    method: metodo,
+    headers: { ...rtRotAuthHeaders(), 'Content-Type':'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok || !data.ok) {
+    const e = new Error(data.error || ('HTTP ' + resp.status));
+    e.errores = data.errores || null;
+    throw e;
+  }
+  return data;
+}
+
+function rtInsumosAbrirPropio(p) {
+  const nuevo = !p;
+  const { overlay, box } = rtInsumosCrearModal(nuevo ? 'Agregar insumo' : 'Editar insumo · ' + p.nombre, { chico:true });
+  const campos = {};
+  const crearCampo = (clave, etiqueta, ayuda, valor, attrs) => {
+    const g = rtEl('div', { className:'form-group' });
+    g.appendChild(rtEl('label', { className:'form-label', text:etiqueta, attrs:{ for:'rtInsPr_' + clave } }));
+    const inp = rtEl('input', { className:'form-control', attrs:{ id:'rtInsPr_' + clave, type:'text', autocomplete:'off', ...attrs } });
+    inp.value = valor === null || valor === undefined ? '' : String(valor);
+    g.appendChild(inp);
+    const msg = rtEl('div', { className:'form-hint', text:ayuda });
+    g.appendChild(msg);
+    box.appendChild(g);
+    campos[clave] = { inp, msg, ayuda };
+  };
+  crearCampo('nombre', 'Nombre', 'Ej: Cinta de embalar', p && p.nombre, { maxlength:'60' });
+  crearCampo('unidad', 'Unidad (opcional)', 'Ej: rollos, cajas, unidades', p && p.unidad, { maxlength:'20' });
+  crearCampo('stock', 'Stock actual', 'Cuántas unidades hay hoy', p ? p.stock : '', { inputmode:'numeric' });
+  crearCampo('punto_reposicion', 'Punto de reposición', 'Cuando el stock llegue a esta cantidad (o menos) se marca para reponer y el bot lo avisa. Vacío = sin aviso.', p && p.punto_reposicion, { inputmode:'numeric' });
+  crearCampo('cantidad_pedido', 'Cantidad a pedir (opcional)', 'Cuánto se pide cuando hay que reponer', p && p.cantidad_pedido, { inputmode:'numeric' });
+
+  const error = rtEl('p', { className:'form-error', attrs:{ role:'alert' } });
+  box.appendChild(error);
+  const mostrarErrores = (errores) => {
+    Object.keys(campos).forEach(k => {
+      const c = campos[k], msg = errores && errores[k];
+      c.msg.textContent = msg || c.ayuda;
+      c.msg.className = msg ? 'form-error' : 'form-hint';
+      c.inp.classList.toggle('rt-ins-invalido', !!msg);
+      c.inp.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    });
+  };
+
+  const acciones = rtEl('div', { className:'rt-modal-acciones' });
+  let btnEliminar = null;
+  if (!nuevo) {
+    btnEliminar = rtEl('button', { className:'btn-sm rt-ins-btn-eliminar', text:'Eliminar', attrs:{ type:'button' } });
+    acciones.appendChild(btnEliminar);
+  }
+  const cancelar = rtEl('button', { className:'btn-sm', text:'Cancelar', attrs:{ type:'button' } });
+  const guardar = rtEl('button', { className:'btn-sm rt-modal-confirmar', text:'Guardar', attrs:{ type:'button' } });
+  acciones.appendChild(cancelar); acciones.appendChild(guardar);
+  box.appendChild(acciones);
+
+  const bloquear = (si) => {
+    RT_INSUMOS_PROPIO_GUARDANDO = si;
+    guardar.disabled = cancelar.disabled = si;
+    if (btnEliminar) btnEliminar.disabled = si;
+  };
+  cancelar.addEventListener('click', () => rtInsumosCerrarModal(overlay));
+  guardar.addEventListener('click', async () => {
+    if (RT_INSUMOS_PROPIO_GUARDANDO) return;
+    bloquear(true); guardar.textContent = 'Guardando…'; error.textContent = ''; mostrarErrores(null);
+    try {
+      const cuerpo = {};
+      Object.keys(campos).forEach(k => { cuerpo[k] = campos[k].inp.value; });
+      const data = nuevo
+        ? await rtInsumosPropiosLlamar('POST', null, cuerpo)
+        : await rtInsumosPropiosLlamar('PUT', p.id, cuerpo);
+      rtInsumosPropiosAplicar(data.insumo);
+      rtInsumosCerrarModal(overlay);
+      rtRenderVistaActual();
+    } catch (err) {
+      if (err.errores) mostrarErrores(err.errores);
+      else error.textContent = 'No se pudo guardar: ' + err.message;
+      guardar.textContent = 'Guardar';
+      bloquear(false);
+    } finally {
+      RT_INSUMOS_PROPIO_GUARDANDO = false; // también tras un guardado exitoso (el modal ya se cerró)
+    }
+  });
+  if (btnEliminar) {
+    // Dos pasos: el primer click pide confirmación, el segundo elimina.
+    let confirmando = false;
+    btnEliminar.addEventListener('click', async () => {
+      if (RT_INSUMOS_PROPIO_GUARDANDO) return;
+      if (!confirmando) {
+        confirmando = true;
+        btnEliminar.textContent = 'Confirmar eliminación';
+        btnEliminar.classList.add('rt-ins-confirmar');
+        return;
+      }
+      bloquear(true); error.textContent = '';
+      try {
+        await rtInsumosPropiosLlamar('DELETE', p.id);
+        rtInsumosPropiosQuitar(p.id);
+        rtInsumosCerrarModal(overlay);
+        rtRenderVistaActual();
+      } catch (err) {
+        error.textContent = 'No se pudo eliminar: ' + err.message;
+        confirmando = false; btnEliminar.textContent = 'Eliminar'; btnEliminar.classList.remove('rt-ins-confirmar');
+        bloquear(false);
+      } finally {
+        RT_INSUMOS_PROPIO_GUARDANDO = false;
+      }
+    });
+  }
+  Object.keys(campos).forEach(k => campos[k].inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') guardar.click(); }));
+  campos.nombre.inp.focus();
+}
+
+function rtInsumosSeccionPropios(propios) {
+  const card = rtEl('div', { className:'card rt-ins-bloque' });
+  const cab = rtEl('div', { className:'rt-ins-calc-cab rt-ins-propios-cab' });
+  const tit = rtEl('div');
+  tit.appendChild(rtEl('h3', { className:'rt-subtitulo', text:'Otros insumos' }));
+  tit.appendChild(rtEl('p', { className:'rt-ins-sub', text:'Insumos que cargás vos a mano (cintas, rollos, cajas…). Indicá el stock y el punto de reposición: cuando el stock llega a ese número se marca para reponer y el bot también lo avisa.' }));
+  cab.appendChild(tit);
+  const btnAgregar = rtEl('button', { className:'btn btn-secondary', text:'+ Agregar insumo', attrs:{ type:'button' } });
+  btnAgregar.addEventListener('click', () => rtInsumosAbrirPropio(null));
+  cab.appendChild(btnAgregar);
+  card.appendChild(cab);
+
+  if (!propios.length) {
+    card.appendChild(rtEl('p', { className:'rt-note rt-ins-nota', text:'Todavía no cargaste otros insumos. Con "Agregar insumo" podés sumar los que quieras controlar.' }));
+    return card;
+  }
+  const clasesBadge = { reponer:'badge-danger', ok:'badge-success', sin_punto:'badge-neutral' };
+  const textosEstado = { reponer:'Reponer', ok:'Stock suficiente', sin_punto:'Sin punto definido' };
+  card.appendChild(rtTabla([
+    'Insumo',
+    { text:'Stock', className:'rt-ins-num' },
+    { text:'Punto de reposición', className:'rt-ins-num rt-ins-sec' },
+    { text:'Estado', className:'rt-ins-cob' },
+    { text:'Pedido sugerido', className:'rt-ins-num rt-ins-sec' },
+    { text:'Editar', className:'rt-ins-accion-texto' },
+  ], propios, (p) => {
+    const tr = rtEl('tr', { className: p.estado === 'reponer' ? 'rt-ins-urgente' : '' });
+    tr.appendChild(rtEl('td', { text: p.nombre }));
+    const tdStock = rtEl('td', { className:'rt-ins-num', text: nf.format(p.stock) });
+    tdStock.appendChild(rtEl('span', { className:'rt-ins-unidad', text: p.unidad }));
+    tr.appendChild(tdStock);
+    tr.appendChild(rtEl('td', { className:'rt-ins-num rt-ins-sec', text: p.punto_reposicion !== null ? nf.format(p.punto_reposicion) : '—' }));
+    const tdEstado = rtEl('td', { className:'rt-ins-cob' });
+    tdEstado.appendChild(rtEl('span', { className:'badge ' + clasesBadge[p.estado], text: textosEstado[p.estado] }));
+    tr.appendChild(tdEstado);
+    let pedido = '—', titulo = '';
+    if (p.estado === 'reponer') {
+      if (p.pedido_sugerido !== null) pedido = nf.format(p.pedido_sugerido) + ' ' + p.unidad;
+      else titulo = 'Falta definir la cantidad a pedir';
+    }
+    const tdPed = rtEl('td', { className:'rt-ins-num rt-ins-sec rt-ins-pedido', text: pedido });
+    if (titulo) tdPed.title = titulo;
+    tr.appendChild(tdPed);
+    const tdAcc = rtEl('td', { className:'rt-ins-accion-texto' });
+    const btn = rtEl('button', { className:'btn-sm rt-ins-btn-editar', text:'Editar', attrs:{ type:'button', 'aria-label':'Editar ' + p.nombre } });
+    btn.addEventListener('click', () => rtInsumosAbrirPropio(p));
+    tdAcc.appendChild(btn);
+    tr.appendChild(tdAcc);
+    return tr;
+  }, { tableClassName:'rt-ins-tabla' }));
+  return card;
+}
+
+// ── Vista ────────────────────────────────────────────────────────────────────
+function rtInsumosTarjeta(iconName, tono, etiqueta, valor, detalle, lista) {
+  const card = rtEl('div', { className:'card rt-ins-card' });
+  const ic = rtEl('div', { className:'rt-kpi-icon rt-kpi-icon-' + tono + ' rt-ins-card-icon', attrs:{ 'aria-hidden':'true' } });
+  ic.innerHTML = icon(iconName, ''); // icono estático del helper
+  card.appendChild(ic);
+  const cuerpo = rtEl('div');
+  cuerpo.appendChild(rtEl('div', { className:'rt-ins-card-label', text: etiqueta }));
+  cuerpo.appendChild(rtEl('div', { className:'rt-ins-card-valor', text: valor }));
+  if (lista) {
+    // Desglose visible: una línea por artículo con pedido > 0 (o el texto de "sin compra").
+    const ul = rtEl('ul', { className:'rt-ins-desglose', attrs:{ 'aria-label':'Desglose del pedido sugerido' } });
+    lista.forEach(t => ul.appendChild(rtEl('li', { text: t })));
+    cuerpo.appendChild(ul);
+  }
+  cuerpo.appendChild(rtEl('div', { className:'rt-ins-card-detalle', text: detalle }));
+  card.appendChild(cuerpo);
+  return card;
+}
+
+function rtInsumosCampoParam(clave, etiqueta, ayuda, error) {
+  const wrap = rtEl('div', { className:'rt-ins-param' });
+  const id = 'rtInsP_' + clave;
+  wrap.appendChild(rtEl('label', { className:'form-label', text: etiqueta, attrs:{ for: id } }));
+  const input = rtEl('input', { className:'form-control' + (error ? ' rt-ins-invalido' : ''),
+    attrs:{ id, type:'text', inputmode:'numeric', autocomplete:'off', 'aria-describedby': id + '_ayuda',
+      'aria-invalid': error ? 'true' : 'false' } });
+  input.value = RT_INSUMOS_PARAMS[clave];
+  input.addEventListener('input', () => {
+    const cursor = input.selectionStart;
+    RT_INSUMOS_PARAMS[clave] = input.value;
+    rtRenderVistaActual();
+    const nuevo = document.getElementById(id);
+    if (nuevo) { nuevo.focus(); try { nuevo.setSelectionRange(cursor, cursor); } catch (e) {} }
+  });
+  wrap.appendChild(input);
+  wrap.appendChild(rtEl('div', { className: error ? 'form-error' : 'form-hint', text: error || ayuda, attrs:{ id: id + '_ayuda' } }));
+  return wrap;
+}
+
+function renderRTInsumos(host) {
+  const C = InsumosCalc;
+  if (!RT_INSUMOS && !RT_INSUMOS_LOADING && !RT_INSUMOS_ERROR) rtCargarInsumos();
+
+  // Encabezado: título + subtítulo, hora de actualización y botón propio.
+  const cab = rtEl('div', { className:'rt-ins-cab' });
+  const tit = rtEl('div');
+  tit.appendChild(rtEl('h2', { className:'rt-ins-titulo', text:'Insumos de bolsas' }));
+  tit.appendChild(rtEl('p', { className:'rt-ins-sub', text:'Control de stock y planificación de compras' }));
+  cab.appendChild(tit);
+  const der = rtEl('div', { className:'rt-ins-cab-der' });
+  if (RT_INSUMOS) der.appendChild(rtEl('span', { className:'rt-ins-hora', text:'Actualizado ' + rtInsumosHora(RT_INSUMOS.generado_en) }));
+  const btnAct = rtEl('button', { className:'btn btn-secondary', attrs:{ type:'button' } });
+  btnAct.innerHTML = icon('refresh', '') + ' '; // icono estático del helper
+  btnAct.appendChild(document.createTextNode(RT_INSUMOS_LOADING ? 'Actualizando…' : 'Actualizar insumos'));
+  btnAct.disabled = RT_INSUMOS_LOADING;
+  btnAct.addEventListener('click', () => rtCargarInsumos(true));
+  der.appendChild(btnAct);
+  cab.appendChild(der);
+  host.appendChild(cab);
+
+  const nota = rtEl('p', { className:'rt-ins-periodo' });
+  nota.textContent = 'El consumo se estima con los últimos ' + (RT_INSUMOS ? RT_INSUMOS.ventana_consumo_dias : 90) + ' días. El período global de arriba no modifica este cálculo.';
+  host.appendChild(nota);
+
+  const zona = rtEl('div');
+  host.appendChild(zona);
+
+  if (!RT_INSUMOS) {
+    if (RT_INSUMOS_LOADING) return rtEstado(zona, 'loading', 'Calculando cobertura de insumos...');
+    if (RT_INSUMOS_ERROR) return rtEstado(zona, 'error', 'No se pudo calcular. ' + RT_INSUMOS_ERROR, () => rtCargarInsumos(true));
+    return rtEstado(zona, 'loading', 'Calculando...');
+  }
+
+  // Datos anteriores tras una actualización fallida: se identifican con su fecha.
+  if (RT_INSUMOS_ERROR) {
+    const al = rtEl('div', { className:'alert alert-warning rt-ins-bloque', attrs:{ role:'alert' } });
+    al.appendChild(rtEl('div', { text:'Datos anteriores del ' + rtInsumosFechaHora(RT_INSUMOS.generado_en) + ': no se pudieron actualizar los insumos (' + RT_INSUMOS_ERROR + ').' }));
+    const reint = rtEl('button', { className:'btn-sm', text:'Reintentar', attrs:{ type:'button' } });
+    reint.addEventListener('click', () => rtCargarInsumos(true));
+    al.appendChild(reint);
+    zona.appendChild(al);
+  }
+
+  const datos = RT_INSUMOS.data;
+  if (!datos.length) return rtEstado(zona, 'vacio', 'Sin bolsas con actividad para mostrar.');
+
+  const umbral = RT_INSUMOS.umbral_cobertura_dias;
+  const val = C.validarParametros(RT_INSUMOS_PARAMS);
+  const params = val.ok ? val.valores : null;
+  const res = C.resumen(datos, params, umbral);
+  const propios = RT_INSUMOS.propios || [];
+  const propiosRep = C.propiosAReponer(propios);
+
+  // ── Tarjetas de resumen ──
+  const cards = rtEl('div', { className:'rt-ins-cards' });
+  const totalReponer = res.paraReponer + propiosRep.length;
+  cards.appendChild(rtInsumosTarjeta('alertTriangle', 'danger', 'Para reponer',
+    nf.format(totalReponer) + (totalReponer === 1 ? ' artículo' : ' artículos'),
+    nf.format(res.paraReponer) + (res.paraReponer === 1 ? ' bolsa' : ' bolsas') + ' con ' + umbral + ' días de cobertura o menos'
+      + (propiosRep.length ? ' · ' + nf.format(propiosRep.length) + (propiosRep.length === 1 ? ' insumo propio' : ' insumos propios') + ' en su punto de reposición' : '')
+      + (res.conDatosARevisar ? ' · ' + res.conDatosARevisar + ' con datos a revisar' : '')));
+  cards.appendChild(rtInsumosTarjeta('warehouse', 'info', 'Stock en depósito',
+    nf.format(res.stockDeposito), 'Unidades disponibles en depósito 90 (sin fallados)'));
+  const lineasPropios = propiosRep.map(p => p.nombre + ' — ' + (p.pedido_sugerido !== null ? nf.format(p.pedido_sugerido) + ' ' + p.unidad : 'definir cantidad'));
+  const lineasBolsas = params ? res.desglose.map(it => it.codigo + ' · ' + it.nombre + ' — ' + nf.format(it.cantidad) + ' unidades') : null;
+  const lineasPedido = params
+    ? ((lineasBolsas.length || lineasPropios.length)
+        ? lineasBolsas.concat(lineasPropios)
+        : ['No se requiere compra con estos parámetros'])
+    : null;
+  cards.appendChild(rtInsumosTarjeta('shoppingCart', 'violet', 'Pedido sugerido',
+    params ? nf.format(res.pedidoTotal) + ' unidades' + (propiosRep.length ? ' de bolsas' : '') : '—',
+    params ? 'Para cubrir ' + params.dias + (params.dias === 1 ? ' día' : ' días') + ' · plazo del proveedor ' + params.plazo + ' d · margen de seguridad ' + params.margen + ' d' : 'Corregí los parámetros para calcular',
+    lineasPedido));
+  zona.appendChild(cards);
+
+  // ── Calculadora ──
+  const calc = rtEl('div', { className:'card rt-ins-bloque' });
+  const calcCab = rtEl('div', { className:'rt-ins-calc-cab' });
+  const calcTit = rtEl('div');
+  calcTit.appendChild(rtEl('h3', { className:'rt-subtitulo', text:'Planificar reposición' }));
+  calcTit.appendChild(rtEl('p', { className:'rt-ins-sub', text:'Simulá escenarios de compra. Días calendario; no modifica stock ni genera compras.' }));
+  calcCab.appendChild(calcTit);
+  const params3 = rtEl('div', { className:'rt-ins-params' });
+  params3.appendChild(rtInsumosCampoParam('dias', 'Días a cubrir', 'Cobertura objetivo después del plazo de entrega', val.errores.dias));
+  params3.appendChild(rtInsumosCampoParam('plazo', 'Plazo del proveedor', 'Días hasta que llega el pedido', val.errores.plazo));
+  params3.appendChild(rtInsumosCampoParam('margen', 'Margen de seguridad', 'Días extra de resguardo', val.errores.margen));
+  calcCab.appendChild(params3);
+  calc.appendChild(calcCab);
+  calc.appendChild(rtEl('p', { className:'rt-note rt-ins-nota', text:'Pedido = consumo diario × (días a cubrir + plazo + margen) − stock utilizable. El plazo y el margen se suman al horizonte del cálculo.' }));
+  zona.appendChild(calc);
+
+  // ── Tabla principal ──
+  const tabla = rtEl('div', { className:'card rt-ins-bloque' });
+  const tCab = rtEl('div', { className:'rt-ins-calc-cab' });
+  const tTit = rtEl('div');
+  tTit.appendChild(rtEl('h3', { className:'rt-subtitulo', text:'Stock y reposición' }));
+  tTit.appendChild(rtEl('p', { className:'rt-ins-sub', text:'Estado actual de stock, cobertura y sugerencia de pedido por tipo de bolsa.' }));
+  tCab.appendChild(tTit);
+
+  const fecha = new Date();
+  const texto = params ? C.textoPedido(datos, params, fecha, propios) : null;
+  const acc = rtEl('div', { className:'rt-ins-acciones' });
+  const btnCopiar = rtEl('button', { className:'btn btn-outline', attrs:{ type:'button' } });
+  btnCopiar.innerHTML = icon('fileText', '') + ' '; // icono estático del helper
+  btnCopiar.appendChild(document.createTextNode('Copiar pedido'));
+  const btnCorreo = rtEl('button', { className:'btn btn-secondary', attrs:{ type:'button' } });
+  btnCorreo.innerHTML = icon('mail', '') + ' '; // icono estático del helper
+  btnCorreo.appendChild(document.createTextNode('Preparar correo'));
+  btnCopiar.disabled = btnCorreo.disabled = !texto;
+  btnCopiar.addEventListener('click', async () => {
+    const ok = await rtInsumosCopiarTexto(texto);
+    rtInsumosAvisar(ok ? 'Pedido copiado al portapapeles.' : 'No se pudo copiar automáticamente. Usá "Preparar correo" y copiá el texto.');
+  });
+  btnCorreo.addEventListener('click', () => rtInsumosAbrirCorreo(texto, new Date(), propiosRep.length > 0));
+  acc.appendChild(btnCopiar); acc.appendChild(btnCorreo);
+  tCab.appendChild(acc);
+  tabla.appendChild(tCab);
+
+  // Explicación breve cuando las acciones están deshabilitadas + confirmación (aria-live).
+  let porQue = '';
+  if (!params) porQue = 'Corregí los parámetros de la calculadora para generar el pedido.';
+  else if (!texto) {
+    const hayRevisar = datos.some(f => f.cobertura_estado === 'datos_a_revisar');
+    porQue = hayRevisar
+      ? 'No hay pedido sugerido: hay artículos con datos a revisar y el resto tiene stock suficiente para los días indicados.'
+      : 'No hay pedido sugerido: el stock utilizable alcanza para los días indicados (o no hay consumo reciente).';
+  }
+  const aviso = rtEl('p', { className:'rt-ins-aviso', attrs:{ id:'rtInsAviso', role:'status', 'aria-live':'polite' } });
+  aviso.textContent = RT_INSUMOS_AVISO || porQue;
+  tabla.appendChild(aviso);
+
+  const headers = [
+    'COD', { text:'Bolsa', className:'rt-ins-bolsa' },
+    { text:'Stock locales', className:'rt-ins-num rt-ins-sec' },
+    { text:'Depósito 90', className:'rt-ins-num rt-ins-sec' },
+    { text:'Consumo / día', className:'rt-ins-num rt-ins-sec' },
+    { text:'Cobertura total', className:'rt-ins-cob' },
+    { text:'Pedido sugerido', className:'rt-ins-num' },
+    { text:'Detalle', className:'rt-ins-accion' },
+  ];
+  tabla.appendChild(rtTabla(headers, datos, (f) => {
+    const est = C.estadoCobertura(f, umbral);
+    const ped = params ? C.pedidoSugerido(f, params) : { estado:'invalido', cantidad:null };
+    const tr = rtEl('tr', { className: est.color === 'rojo' ? 'rt-ins-urgente' : '' });
+    // En móvil la columna "Bolsa" se oculta y el nombre baja debajo del código.
+    const tdCod = rtEl('td', { text: f.codigo });
+    tdCod.appendChild(rtEl('span', { className:'rt-ins-cod-nombre', text: C.nombreCorto(f) }));
+    tr.appendChild(tdCod);
+    tr.appendChild(rtEl('td', { className:'rt-ins-bolsa', text: C.nombreCorto(f) }));
+    // Valores crudos: un stock negativo se ve (y se marca), nunca se convierte en 0 en silencio.
+    const locCrudo = f.stock_locales_crudo !== undefined ? f.stock_locales_crudo : f.stock_locales;
+    const depCrudo = f.stock_deposito_90_crudo !== undefined ? f.stock_deposito_90_crudo : f.stock_deposito_90;
+    tr.appendChild(rtEl('td', { className:'rt-ins-num rt-ins-sec' + (locCrudo < 0 ? ' rt-ins-neg' : ''), text: nf.format(locCrudo), attrs: locCrudo < 0 ? { title:'Stock negativo: revisar en Sysneo' } : {} }));
+    tr.appendChild(rtEl('td', { className:'rt-ins-num rt-ins-sec' + (depCrudo < 0 ? ' rt-ins-neg' : ''), text: nf.format(depCrudo), attrs: depCrudo < 0 ? { title:'Stock negativo: revisar en Sysneo' } : {} }));
+    tr.appendChild(rtEl('td', { className:'rt-ins-num rt-ins-sec', text: f.consumo_diario_estimado !== null ? nf1.format(f.consumo_diario_estimado) : '—' }));
+
+    const tdCob = rtEl('td', { className:'rt-ins-cob' });
+    const clasesBadge = { rojo:'badge-danger', ambar:'badge-warning', verde:'badge-success', gris:'badge-neutral' };
+    const esGris = est.color === 'gris';
+    // Gris: el badge lleva el texto del estado (sin consumo / datos a revisar); el
+    // resto muestra los días y el texto del estado debajo -- nunca solo color.
+    tdCob.appendChild(rtEl('span', { className:'badge ' + clasesBadge[est.color], text: esGris ? est.texto : rtInsumosTextoCobertura(f) }));
+    if (!esGris) tdCob.appendChild(rtEl('span', { className:'rt-ins-estado', text: est.texto }));
+    tr.appendChild(tdCob);
+
+    let textoPedido = '—', titulo = '';
+    if (ped.estado === 'ok') textoPedido = nf.format(ped.cantidad);
+    else if (ped.estado === 'sin_consumo') titulo = 'Sin consumo reciente: no se genera compra automática';
+    else if (ped.estado === 'datos_a_revisar') titulo = 'Datos a revisar: no se recomienda un pedido';
+    const tdPed = rtEl('td', { className:'rt-ins-num rt-ins-pedido', text: textoPedido });
+    if (titulo) tdPed.title = titulo;
+    tr.appendChild(tdPed);
+
+    const tdAcc = rtEl('td', { className:'rt-ins-accion' });
+    const btn = rtEl('button', { className:'btn-sm rt-ins-btn-detalle', attrs:{ type:'button', 'aria-label':'Ver detalle de ' + f.codigo + ' ' + C.nombreCorto(f) } });
+    btn.innerHTML = icon('chevronRight', ''); // icono estático del helper
+    btn.addEventListener('click', () => rtInsumosAbrirDetalle(f.codigo));
+    tdAcc.appendChild(btn);
+    tr.appendChild(tdAcc);
+    return tr;
+  }, { tableClassName:'rt-ins-tabla' }));
+  zona.appendChild(tabla);
+
+  zona.appendChild(rtInsumosSeccionPropios(propios));
+
+  // ── Alerta prioritaria ──
+  const prio = C.prioritario(datos);
+  const hayRevisar = datos.some(f => f.cobertura_estado === 'datos_a_revisar');
+  const hayDetalle = (f) => f && f.sucursales && f.sucursales.length;
+  let alerta;
+  if (prio && prio.cobertura_dias <= umbral) {
+    alerta = rtEl('div', { className:'alert alert-danger rt-ins-bloque', attrs:{ role:'status' } });
+    const t = rtEl('div', { className:'rt-ins-alerta-texto' });
+    t.appendChild(rtEl('strong', { text:'Prioridad: ' + prio.codigo + ' · ' + (prio.producto || '') }));
+    const dias = prio.cobertura_dias < 1 ? 'menos de 1 día' : 'aproximadamente ' + nf.format(Math.round(prio.cobertura_dias)) + (Math.round(prio.cobertura_dias) === 1 ? ' día' : ' días');
+    t.appendChild(rtEl('div', { text:'Quedan ' + dias + ' de cobertura.' }));
+    alerta.appendChild(t);
+    if (hayDetalle(prio)) {
+      const b = rtEl('button', { className:'btn btn-outline', text:'Ver sucursales', attrs:{ type:'button' } });
+      b.addEventListener('click', () => rtInsumosAbrirDetalle(prio.codigo));
+      alerta.appendChild(b);
+    }
+  } else if (prio) {
+    alerta = rtEl('div', { className:'alert alert-success rt-ins-bloque', attrs:{ role:'status' } });
+    alerta.appendChild(rtEl('div', { text:'Los artículos con consumo reciente tienen cobertura suficiente (más de ' + umbral + ' días).' + (hayRevisar ? ' Hay artículos con datos a revisar: no están incluidos en esta conclusión.' : '') }));
+  } else {
+    alerta = rtEl('div', { className:'alert alert-warning rt-ins-bloque', attrs:{ role:'status' } });
+    alerta.appendChild(rtEl('div', { text: hayRevisar
+      ? 'No se puede estimar la cobertura: hay artículos con datos a revisar y el resto no tiene consumo reciente.'
+      : 'No hay consumo reciente medible: no se puede estimar la cobertura de ningún artículo.' }));
+  }
+  zona.appendChild(alerta);
+
+  // ── Cómo se calcula (desplegable) ──
+  const det = rtEl('details', { className:'card rt-ins-bloque rt-ins-como' });
+  det.appendChild(rtEl('summary', { text:'Cómo se calcula' }));
+  const lista = rtEl('ul', { className:'rt-note' });
+  const excl = RT_INSUMOS.centros_excluidos ? Object.keys(RT_INSUMOS.centros_excluidos).map(c => RT_INSUMOS.centros_excluidos[c]).join(', ') : '';
+  [
+    'Universo: rubros INSUMOS / ART REGALOS Y PROMOS, solo productos con "BOLSA" en el nombre.',
+    'Consumo: salidas reales de los últimos ' + RT_INSUMOS.ventana_consumo_dias + ' días (ventas y salidas de sucursal). No cuenta transferencias internas entre depósito y sucursal, ni ajustes de inventario.',
+    'Consumo diario estimado = salidas válidas ÷ ' + RT_INSUMOS.ventana_consumo_dias + '.',
+    'Stock utilizable = depósito 90 + locales activos. Depósito 90 = depósito central menos fallados 93 (los fallados no cuentan como disponibilidad). Excluye sucursales cerradas o inactivas' + (excl ? ' (' + excl + ')' : '') + ', tanto del stock como del consumo.',
+    'Cobertura total = stock utilizable ÷ consumo diario estimado.',
+    'Pedido sugerido = máximo entre 0 y redondeo hacia arriba de [consumo diario × (días a cubrir + plazo + margen) − stock utilizable]. Se calcula con precisión completa y se redondea solo al final.',
+    'Umbral de aviso: ' + umbral + ' días de cobertura o menos → "Para reponer". Estados por color con su texto: urgente (15 días o menos), reponer pronto (hasta ' + umbral + '), cobertura suficiente (más de ' + umbral + ').',
+    'Sin consumo reciente: no hubo salidas válidas en la ventana; no se calcula cobertura ni se genera compra automática. Datos a revisar: stock negativo o inconsistente; tampoco se recomienda un pedido.',
+    'Otros insumos: los carga el equipo a mano (stock actual y punto de reposición, no vienen de Sysneo). Se marcan "Reponer" cuando el stock es igual o menor al punto de reposición; no se estima consumo ni cobertura. El bot de WhatsApp los avisa igual que a las bolsas.',
+    'Último ingreso y cantidad recibida son solo informativos (última compra registrada al proveedor): no se usan para calcular.',
+  ].forEach(t => lista.appendChild(rtEl('li', { text: t })));
+  det.appendChild(lista);
+  zona.appendChild(det);
+}
+</script>
+<script>
+  window.addEventListener('load', function() {
+    var splash = document.getElementById('splashScreen');
+    if (!splash) return;
+    setTimeout(function() {
+      splash.classList.add('splash-hide');
+      setTimeout(function() { splash.remove(); }, 600);
+    }, 1200);
+  });
+</script>
+</body>
+</html>
