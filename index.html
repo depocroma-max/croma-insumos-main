@@ -1404,7 +1404,9 @@ function rtInsumosCampoParam(clave, etiqueta, ayuda, error) {
 
 function renderRTInsumos(host) {
   const C = InsumosCalc;
-  if (!RT_INSUMOS && !RT_INSUMOS_LOADING && !RT_INSUMOS_ERROR) rtCargarInsumos();
+  // Auto-carga diferida: rtCargarInsumos() vuelve a llamar rtRenderVistaActual() de forma
+  // sincrónica, y hacerlo dentro de este render reentraba y dibujaba el encabezado dos veces.
+  if (!RT_INSUMOS && !RT_INSUMOS_LOADING && !RT_INSUMOS_ERROR) queueMicrotask(() => rtCargarInsumos());
 
   // Encabezado: título + subtítulo, hora de actualización y botón propio.
   const cab = rtEl('div', { className:'rt-ins-cab' });
@@ -1433,7 +1435,7 @@ function renderRTInsumos(host) {
   if (!RT_INSUMOS) {
     if (RT_INSUMOS_LOADING) return rtEstado(zona, 'loading', 'Calculando cobertura de insumos...');
     if (RT_INSUMOS_ERROR) return rtEstado(zona, 'error', 'No se pudo calcular. ' + RT_INSUMOS_ERROR, () => rtCargarInsumos(true));
-    return rtEstado(zona, 'loading', 'Calculando...');
+    return rtEstado(zona, 'loading', 'Calculando cobertura de insumos...');
   }
 
   // Datos anteriores tras una actualización fallida: se identifican con su fecha.
